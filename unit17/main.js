@@ -13,6 +13,7 @@ ctx.fillStyle ='#ff8855';
 
 const k = 0.05;
 const grav = 0.5;
+const radius = 5;
 
 // const springPoint = new Vector({x: width / 2, y: height / 2});
 const particleA = new Particle({
@@ -21,7 +22,7 @@ const particleA = new Particle({
   speed: 50,
   direction: Math.random() * Math.PI * 2, 
   grav});
-particleA.radius = 20;
+particleA.radius = radius;
 particleA.friction = 0.9;
 
 const particleB = new Particle({
@@ -30,7 +31,7 @@ const particleB = new Particle({
   speed: 50,
   direction: Math.random() * Math.PI * 2, 
   grav});
-particleB.radius = 20;
+particleB.radius = radius;
 particleB.friction = 0.9;
 
 const particleC = new Particle({
@@ -39,7 +40,7 @@ const particleC = new Particle({
   speed: 50,
   direction: Math.random() * Math.PI * 2, 
   grav});
-particleC.radius = 20;
+particleC.radius = radius;
 particleC.friction = 0.9;
 
 const particleD = new Particle({
@@ -48,7 +49,7 @@ const particleD = new Particle({
   speed: 50,
   direction: Math.random() * Math.PI * 2, 
   grav});
-particleD.radius = 20;
+particleD.radius = radius;
 particleD.friction = 0.9;
 
 const springLength = 100;
