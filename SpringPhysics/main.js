@@ -15,7 +15,7 @@ let Mousedown = false;
 ctx.strokeStyle = '#ff8855';
 ctx.fillStyle = '#ff8855';
 
-const k = 0.05;
+const k = 0.2;
 const grav = 0.5;
 const radius = 10;
 
@@ -63,38 +63,27 @@ particleD.friction = 0.9;
 const springLength = 200;
 
 canvas.addEventListener("mousemove", function (e) {
-  // springPoint.setX(e.clientX - 15);
-  // springPoint.setY(e.clientY - 15);
 
   MouseX = e.clientX - radius
   MouseY = e.clientY - radius
 
-  let m = { x: MouseX, y: MouseY };
+  let m = new Vector(MouseX,MouseY);
 
   if (Mousedown) {
-    if (particleA.distanceTo(m) <= radius) {
+    
+    if (particleA.distanceToVector(m) <= radius) {
 
-      particleA.x = MouseX;
-      particleA.y = MouseY;
-      particleA.sellect = true
+      sellectParticle(particleA,m);
 
-    } else if (particleB.distanceTo(m) <= radius) {
+    } else if (particleB.distanceToVector(m) <= radius) {
+      sellectParticle(particleB,m);
 
-      particleB.x = MouseX;
-      particleB.y = MouseY;
-      particleB.sellect = true
+    } else if (particleC.distanceToVector(m) <= radius) {
+      sellectParticle(particleC,m);
 
-    } else if (particleC.distanceTo(m) <= radius) {
+    } else if (particleD.distanceToVector(m) <= radius) {
 
-      particleC.x = MouseX;
-      particleC.y = MouseY;
-      particleC.sellect = true
-
-    } else if (particleD.distanceTo(m) <= radius) {
-
-      particleD.x = MouseX;
-      particleD.y = MouseY;
-      particleD.sellect = true
+      sellectParticle(particleD,m);
     }
   }
 
@@ -104,8 +93,6 @@ canvas.addEventListener("mousemove", function (e) {
 canvas.addEventListener("mousedown", function (e) {
 
   Mousedown = true;
-
-
 })
 
 canvas.addEventListener("mouseup", function (e) {
@@ -132,17 +119,10 @@ function update() {
   spring(particleD, particleB, springLength);
   spring(particleA, particleD, springLength);
 
-  for (let index = 0; index < 1; index++) {
-    particleA.update();
-    particleB.update();
-    particleC.update();
-    particleD.update();
-    
-  }
-  // particleA.update();
-  // particleB.update();
-  // particleC.update();
-  // particleD.update();
+  particleA.update();
+  particleB.update();
+  particleC.update();
+  particleD.update();
 
   edgeDetect(particleA);
   edgeDetect(particleB);
@@ -161,80 +141,87 @@ function update() {
   paintLine(particleD, particleB);
   paintLine(particleD, particleA);
 
-  
-
   requestAnimationFrame(update);
 }
 
 function spring(p0, p1, separation) {
 
-  const dx = p0.x - p1.x;
-  const dy = p0.y - p1.y;
-  const distansSQ = dx * dx + dy * dy;
-  const distans = Math.sqrt(distansSQ);
+  const distans = p0.distanceTo(p1);
   const springForce = (distans - separation) * k;
 
-  const ax = ((dx == 0) ? 1 : dx / distans) * springForce;
-  const ay = ((dy == 0) ? 0 : dy / distans) * springForce;
-
-  p0.vx += ax * -1;
-  p0.vy += ay * -1;
-  p1.vx += ax;
-  p1.vy += ay;
+  const delta = Vector.subtract(p0.position,p1.position);
+  delta.divideBy(distans);
+  delta.multiplyBy(springForce);
+  
+  p1.accelerate(delta);
+  delta.multiplyBy(-1);
+  p0.accelerate(delta);
 }
 
 function edgeDetect(p) {
 
-  if (p.x + p.radius > width) {
-    p.x = (width - p.radius);
-    p.vx = p.vx * p.bounce;
-  }
-  if (p.x - p.radius < 0) {
-    p.x = (p.radius);
-    p.vx = p.vx * p.bounce;
-  }
-  if (p.y + p.radius > height) {
-    p.y = (height - p.radius);
-
-    const distVelocity = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-    if (distVelocity > 0.1) {
-
-      p.vx *= p.friction;
-      p.vy *= p.friction;
-      p.vy *= p.bounce;
-
-    } else {
-      p.vx = 0;
-      p.vy = 0;
+  if (p.position.getX() + p.radius > width) {
+    p.position.setX(width - p.radius);
+    p.velocity.setX(p.velocity.getX() * p.bounce);
+    if(isNaN(p.velocity._x)){
+      let s =5;
     }
   }
-  if (p.y - p.radius < 0) {
-    p.y = (p.radius);
-    p.vy = p.bounce * p.vy;
+  if (p.position.getX() - p.radius < 0) {
+    p.position.setX(p.radius);
+    p.velocity.setX(p.velocity.getX() * p.bounce);
+    if(isNaN(p.velocity._x)){
+      let s =5;
+    }
+  }
+  if (p.position.getY() + p.radius > height) {
+    p.position.setY(height - p.radius);
+
+    const distVelocity = p.velocity.getLength();//  Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+    if (distVelocity > 0.1) {
+      
+      p.velocity.multiplyBy(p.friction);
+      p.velocity._y *= p.bounce;
+
+    } else {
+      p.velocity.setX(0);
+      p.velocity.setY(0); 
+    }
+
+    if(isNaN(p.velocity._x)){
+      let s =5;
+    }
+  }
+  if (p.position.getY() - p.radius < 0) {
+    p.position.setY(p.radius);
+    p.velocity.setY(p.bounce *  p.velocity.getY());
+    if(isNaN(p.velocity._x)){
+      let s =5;
+    }
   }
 }
 
 function paintParticle(p) {
   ctx.fillStyle = '#ff8855';
   ctx.beginPath();
-  ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
+  ctx.arc(p.position.getX(), p.position.getY(), p.radius, 0, Math.PI * 2, false);
   ctx.fill();
 }
 
 function paintLine(p0, p1) {
   // ctx.strokeStyle = '#7777ff';
   // ctx.beginPath();
-  // ctx.moveTo(p0.x, p0.y);
-  // ctx.lineTo(p1.x, p1.y);
+  // ctx.moveTo(p0.position.getX(), p0.position.getY());
+  // ctx.lineTo(p1.position.getX(), p1.position.getY());
   // ctx.stroke();
 
-  springStrokeDraw({ x: p0.x, y: p0.y }, { x: p1.x, y: p1.y });
+  springStrokeDraw(p0.position, p1.position);
 }
 
 
 function springStrokeDraw(p1, p2) {
   ctx.strokeStyle = '#7777ff';
-  console.log("Start")
+  // console.log("Start")
 
   // flat line
   // ctx.strokeStyle = '#7777ff';
@@ -243,10 +230,13 @@ function springStrokeDraw(p1, p2) {
   // ctx.lineTo(p2.x, p2.y);
   // ctx.stroke();
 
-  const xMid = (p2.x - p1.x)
-  const yMid = (p2.y - p1.y)
+  // const xMid = (p2.x - p1.x)
+  // const yMid = (p2.y - p1.y)
 
-  const newLength = Math.sqrt(xMid * xMid + yMid * yMid);
+  const mid = Vector.subtract(p2,p1);
+  const newLength = mid.getLength();
+
+  // const newLength = Math.sqrt(xMid * xMid + yMid * yMid);
 
   const k = springLength / newLength;
 
@@ -256,43 +246,50 @@ function springStrokeDraw(p1, p2) {
   // ctx.lineTo(p1.x - yMid, p1.y + xMid);
   // ctx.stroke();
 
-  let p1Xstart = p1.x + xMid * 0.1;
-  let p1Ystart = p1.y + yMid * 0.1;
-
-  let p1Xend = p1.x + xMid * 0.9;
-  let p1Yend = p1.y + yMid * 0.9;
+  let p1Start = Vector.add(p1,Vector.multiplyByScalar(mid,0.1))
+  let p1End = Vector.add(p1,Vector.multiplyByScalar(mid,0.9))
 
   ctx.beginPath();
-  ctx.moveTo(p1.x, p1.y);
-  ctx.lineTo(p1Xstart, p1Ystart);
+  ctx.moveTo(p1.getX(), p1.getY());
+  ctx.lineTo(p1Start.getX(), p1Start.getY());
 
-  let lengthSegment = 0.1;
-
-  for (let i = 0.2; i < 1 - 0.2; i = i + lengthSegment * 0.5) {
+  for (let i = 0.2; i < 1 - 0.2; i = i + 0.1) {
 
     let step = i;
-   let sizeSegment = Math.min(lengthSegment * k * k, lengthSegment);
+    let lengthSegment = 0.1;
+    let sizeSegment = Math.min(lengthSegment * k * k, lengthSegment);
 
-    let newp1X = p1.x + xMid * step;
-    let newp1Y = p1.y + yMid * step;
+    let newp1 = Vector.add(p1,Vector.multiplyByScalar(mid,step));
+    let a1 = Vector.multiplyByScalar(mid,sizeSegment) 
+    let a2 = Vector.multiplyByScalar(mid,step) 
+    
+    a1._y *= -1;
+    let a3 = new Vector(a1._y,a1._x);
 
-    let newp2X = p1.x - yMid * sizeSegment + xMid * step;
-    let newp2Y = p1.y + xMid * sizeSegment + yMid * step;
+    let newp2 = Vector.add(p1, Vector.add(a3,a2) );
+    let delta = Vector.subtract(newp2,newp1);
+    delta.multiplyBy(0.5);
 
-    let deltaX = newp2X - newp1X;
-    let deltaY = newp2Y - newp1Y;
+    let springPoint1 = Vector.subtract(newp1,delta)
+    let springPoint2 = Vector.subtract(newp2,delta)
 
-    let springPoint1 = { x: newp1X - deltaX * 0.5, y: newp1Y - deltaY * 0.5 }
-    let springPoint2 = { x: newp2X - deltaX * 0.5, y: newp2Y - deltaY * 0.5 }
-
-    ctx.lineTo(springPoint1.x, springPoint1.y);
-    ctx.lineTo(springPoint2.x, springPoint2.y);
+    ctx.lineTo(springPoint1.getX(), springPoint1.getY());
+    ctx.lineTo(springPoint2.getX(), springPoint2.getY());
 
   }
-  ctx.lineTo(p1Xend, p1Yend);
-  ctx.lineTo(p2.x, p2.y);
+  ctx.lineTo(p1End.getX(), p1End.getY());
+  ctx.lineTo(p2.getX(), p2.getY());
 
   ctx.stroke();
 
-  console.log("Finish")
+
 }
+
+function sellectParticle(p,m){
+  p.position = m;
+  p.sellect = true;
+  p.velocity = new Vector(0,0);
+  if(isNaN(p.velocity._x)){
+    let s =5;
+  }
+} 
