@@ -1,5 +1,6 @@
 import { Vector } from './Vector.js';
 import { Particle } from "./Particle.js";
+import { Stick } from "./Stick.js";
 
 /** @type {HTMLCanvasElement} */
 let canvas = document.querySelector("#canvas");
@@ -18,49 +19,46 @@ ctx.fillStyle = '#ff8855';
 const k = 0.2;
 const grav = 0.5;
 const radius = 10;
-
-// const springPoint = new Vector({x: width / 2, y: height / 2});
-const particleA = new Particle({
-  x: Math.random() * width,
-  y: Math.random() * height,
-  speed: 50,
-  direction: Math.random() * Math.PI * 2,
-  grav
-});
-particleA.radius = radius;
-particleA.friction = 0.9;
-
-const particleB = new Particle({
-  x: Math.random() * width,
-  y: Math.random() * height,
-  speed: 50,
-  direction: Math.random() * Math.PI * 2,
-  grav
-});
-particleB.radius = radius;
-particleB.friction = 0.9;
-
-const particleC = new Particle({
-  x: Math.random() * width,
-  y: Math.random() * height,
-  speed: 50,
-  direction: Math.random() * Math.PI * 2,
-  grav
-});
-particleC.radius = radius;
-particleC.friction = 0.9;
-
-const particleD = new Particle({
-  x: Math.random() * width,
-  y: Math.random() * height,
-  speed: 50,
-  direction: Math.random() * Math.PI * 2,
-  grav
-});
-particleD.radius = radius;
-particleD.friction = 0.9;
-
+const  particleCount = 50;
+let particles = [];
+let sticks = [];
 const springLength = 200;
+
+// for (let index = 0; index < particleCount; index++) {
+
+//     const particle = new Particle({
+//       x: Math.random() * width,
+//       y: Math.random() * height,
+//       speed: 50,
+//       direction: Math.random() * Math.PI * 2,
+//       grav
+//     });
+//     particle.radius = radius;
+//     particle.friction = 0.97;
+
+//     particles.push(particle);
+  
+// }
+
+particles.push(new Particle({
+  x: 100,
+  y: 100,
+  speed: 50,
+  direction: Math.random() * Math.PI * 2,
+  grav
+}));
+particles.push(new Particle({x: 200, y: 100}));
+particles.push(new Particle({x: 200, y: 200}));
+particles.push(new Particle({x: 100, y: 200}));
+
+// sticks
+sticks.push(new Stick(particles[0], particles[1]))
+sticks.push(new Stick(particles[1], particles[2]))
+sticks.push(new Stick(particles[2], particles[3]))
+sticks.push(new Stick(particles[3], particles[0]))
+sticks.push(new Stick(particles[3], particles[1]))
+sticks.push(new Stick(particles[0], particles[2]))
+
 
 canvas.addEventListener("mousemove", function (e) {
 
@@ -99,11 +97,10 @@ canvas.addEventListener("mouseup", function (e) {
 
   Mousedown = false;
 
-  particleA.sellect = false
-  particleB.sellect = false
-  particleC.sellect = false
-  particleD.sellect = false
-
+  particles.forEach(element => {
+    element.sellect = false;
+  });
+  
 })
 
 update();
@@ -112,34 +109,56 @@ function update() {
 
   ctx.clearRect(0, 0, width, height);
 
-  spring(particleA, particleB, springLength);
-  spring(particleB, particleC, springLength);
-  spring(particleC, particleA, springLength);
-  spring(particleC, particleD, springLength);
-  spring(particleD, particleB, springLength);
-  spring(particleA, particleD, springLength);
+  // spring(particles[0], particles[1], springLength);
+  // spring(particles[1], particles[2], springLength);
+  // spring(particles[2], particles[3], springLength);
 
-  particleA.update();
-  particleB.update();
-  particleC.update();
-  particleD.update();
 
-  edgeDetect(particleA);
-  edgeDetect(particleB);
-  edgeDetect(particleC);
-  edgeDetect(particleD);
+  // spring(particleC, particleD, springLength);
+  // spring(particleD, particleB, springLength);
+  // spring(particleA, particleD, springLength);
 
-  paintParticle(particleA);
-  paintParticle(particleB);
-  paintParticle(particleC);
-  paintParticle(particleD);
+  for (let index = 0; index < 2; index++) {
+    particles.forEach(particle => {
+      particle.update();
+      edgeDetect(particle);
+    });
 
-  paintLine(particleA, particleB);
-  paintLine(particleB, particleC);
-  paintLine(particleC, particleA);
-  paintLine(particleC, particleD);
-  paintLine(particleD, particleB);
-  paintLine(particleD, particleA);
+    sticks.forEach(stick => {
+      stick.update();
+    })
+  }
+
+  particles.forEach(particle => {
+    paintParticle(particle);
+  });
+
+  sticks.forEach(stick => {
+    paintLine(stick.startPoint, stick.endPoint);
+  })
+
+
+  // particleA.update();
+  // particleB.update();
+  // particleC.update();
+  // particleD.update();
+
+  // edgeDetect(particleA);
+  // edgeDetect(particleB);
+  // edgeDetect(particleC);
+  // edgeDetect(particleD);
+
+  // paintParticle(particleA);
+  // paintParticle(particleB);
+  // paintParticle(particleC);
+  // paintParticle(particleD);
+
+  // paintLine(particles[0], particles[1]);
+  // paintLine(particles[1], particles[2]);
+  // paintLine(particles[2], particles[3]);
+  // paintLine(particleC, particleD);
+  // paintLine(particleD, particleB);
+  // paintLine(particleD, particleA);
 
   requestAnimationFrame(update);
 }
@@ -209,13 +228,13 @@ function paintParticle(p) {
 }
 
 function paintLine(p0, p1) {
-  // ctx.strokeStyle = '#7777ff';
-  // ctx.beginPath();
-  // ctx.moveTo(p0.position.getX(), p0.position.getY());
-  // ctx.lineTo(p1.position.getX(), p1.position.getY());
-  // ctx.stroke();
+  ctx.strokeStyle = '#7777ff';
+  ctx.beginPath();
+  ctx.moveTo(p0.position.getX(), p0.position.getY());
+  ctx.lineTo(p1.position.getX(), p1.position.getY());
+  ctx.stroke();
 
-  springStrokeDraw(p0.position, p1.position);
+  // springStrokeDraw(p0.position, p1.position);
 }
 
 

@@ -12,49 +12,44 @@ export class Particle {
 
     this.position = new Vector(x,y);
     this.positionOld = new Vector(x,y);
-    this.velocity = new Vector( Math.cos(direction) * speed,Math.sin(direction) * speed);
+    this.velocity = new Vector( Math.cos(direction) * speed, Math.sin(direction) * speed);
+    if(direction){
+      this.positionOld.subtractFrom(this.velocity);
+    }
 
-    this.mass = 1.0;
-    this.radius = 0;
-		this.friction = 1;
+    this.mass = 2.0;
+    this.radius = 5.0;
+		this.friction = 0.97;
     this.bounce = 0.5;
     this.sellect = false;
 
-    this.gravity = new Vector(0,grav||0); // гравитация в низ экрана
+    this.gravity = new Vector(0,grav||0.5); // гравитация в низ экрана
 
 }
     
 	accelerate(accel){
     this.velocity.addTo(accel);
-    if(isNaN(this.velocity._x)){
-      let s =5;
-    }
-	}
+  }
 
 	update(){
-    if(isNaN(this.velocity._x)){
-      let s =5;
-    }
+  
     if (!this.sellect){
-      this.accelerate(this.gravity);
-      this.velocity.multiplyBy(this.friction);
-      this.position.addTo(this.velocity);
 
-      if(isNaN(this.velocity._x)){
-        let s =5;
-      }
+      // this.accelerate(this.gravity);
+
+      this.velocity = Vector.subtract(this.position, this.positionOld);
+      this.velocity.multiplyBy(this.friction);
+
+      this.positionOld.setX(this.position.getX());
+      this.positionOld.setY(this.position.getY());
+      
+      this.position.addTo(this.velocity);
+      this.position.addTo(this.gravity);
 
     }else{
       this.velocity.multiplyBy(0);
-      if(isNaN(this.velocity._x)){
-        let s =5;
-      }
-
     }
   
-    if(isNaN(this.velocity._x)){
-      let s =5;
-    }
 	}
 
 	angleTo(p2){
@@ -102,10 +97,5 @@ export class Particle {
     grav.setLength(p2.mass / (dist * dist));
     grav.setAngle(this.angleTo(p2));
     this.velocity.addTo(grav);
-
-    if(isNaN(this.velocity._x)){
-      let s =5;
-    }
-
   }
 }
