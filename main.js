@@ -8,7 +8,7 @@ let width = canvas.width = 450;
 let height = (canvas.height = 300);
 
 //ctx.fillRect(0,0,width,height);
-ctx.strokeStyle = '#ff8856';
+ctx.strokeStyle = '#ff8857';
 for (let index = 0; index < 100; index++) {
     ctx.beginPath();
     ctx.moveTo(Math.random() * width, Math.random() * height);
