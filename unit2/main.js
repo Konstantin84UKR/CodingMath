@@ -1,9 +1,6 @@
 console.log("Hello")
 /** @type {HTMLCanvasElement} */
-let canvas = document.querySelector("#canvas");
-console.log(canvas);
-
-let ctx = canvas.getContext('2d');
+const ctx = document.createElement('canvas').getContext('2d');
 let width = canvas.width = 450;
 let height = (canvas.height = 300);
 
