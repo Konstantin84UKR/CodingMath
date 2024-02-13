@@ -8,6 +8,11 @@ function main() {
     let camera;
     let cameraControl;
 
+    const button = document.querySelector('#buttonRestart');
+        button.addEventListener('click', function () {
+            location.reload();
+    });
+
     // phisics scene --------------------------------------
 
     const phisicsScene = {

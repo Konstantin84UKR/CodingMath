@@ -100,7 +100,7 @@ function main() {
 
     function setupScene(){
         physicsScene.balls = [];
-        const numBalls = 20;
+        const numBalls = 30;
             
         for (let i = 0; i < numBalls; i++) {
            
