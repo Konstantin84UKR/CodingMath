@@ -1,4 +1,5 @@
-import * as glMatrix from "../common/glm/index.js";
+//import * as glMatrix from "../common/glm/index.js";
+//import { copy } from "../common/glm/mat2.js";
 
 
 function main() {
@@ -14,6 +15,8 @@ function main() {
 	const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
 	const simWidth = canvas.width / cScale;
 	const simHeight = canvas.height / cScale;
+		
+	const startTime = performance.now();
 
 	function cX(pos) {
 		return pos.x * cScale;
@@ -83,6 +86,22 @@ function main() {
 			this.x = this.x / L;
 			this.y = this.y / L;
 		}
+
+		reflect(incidentVector, normalVector){
+			// Нормализация векторов
+			incidentVector.normalize();
+			normalVector.normalize();
+
+			// Вычисление проекции
+			//const projection = normalizedIncidentVector.dot(normalizedNormalVector) * normalizedNormalVector;
+			normalVector.scale(incidentVector.dot(normalVector));
+			let reflectedVector = normalVector.clone();
+			// Вычисление вектора отражения
+			reflectedVector.scale(2);
+			reflectedVector.subtract(incidentVector,1);
+
+			return reflectedVector;
+		}
 	}
 	// ----------------------------------------------------------------------
 
@@ -94,26 +113,28 @@ function main() {
 			return a.clone();
 		}
 
+		t = Math.max(0.0, Math.min(1.0, (p.dot(ab) - a.dot(ab)) / t));
+		// let ap = new Vector2();
+		// ap.subtractVectors(p, a);
+
+		//t = ab.dot(ap);
+
+		let closest = a.clone();
+		return closest.add(ab, t);
 		//t = Math.max(0.0, Math.min(1.0, (p.dot(ab) - a.dot(ab)) / t));
-		let ap = new Vector2();
-		ap.subtractVectors(p, a);
-
-		t = ab.dot(ap);
-
-
-		const closest = a.clone();
-		return closest.add(b, t);
+    	//return closest.normalize().scale(t);
 	}
 
 
 	class Ball {
-		constructor(radius, mass, pos, vel, restitution) {
+		constructor(radius, mass, pos, vel, restitution, delay = 0) {
 			this.radius = radius;
 			this.mass = mass;
 			this.restitution = restitution;
 			this.pos = pos.clone();
 			this.vel = vel.clone();
 			this.sleep = false;
+			this.delay = delay;
 		}
 		simulate(dt, gravity) {
 
@@ -193,24 +214,42 @@ function main() {
 		
 		physicsScene.score = 0;
 
-		// border
-		physicsScene.border.push(new Vector2(0.05 * cScale, 0.05 * cScale));
-		physicsScene.border.push(new Vector2(0.12 * cScale, 0.06 * cScale));
+		// border 1
+		physicsScene.border.push(new Vector2(0.05 * cScale, 0.03 * cScale));
+		physicsScene.border.push(new Vector2(0.15 * cScale, 0.05 * cScale));
+
+
+		// border 2 
+		physicsScene.border.push(new Vector2(0.01 * cScale, 0.07 * cScale));
+		physicsScene.border.push(new Vector2(0.11 * cScale, 0.06 * cScale));
+
+		// // border 3
+		physicsScene.border.push(new Vector2(0.05 * cScale, 0.09 * cScale));
+		physicsScene.border.push(new Vector2(0.15 * cScale, 0.11 * cScale));
+
+
+		// // border 4
+		physicsScene.border.push(new Vector2(0.01 * cScale, 0.14 * cScale));
+		physicsScene.border.push(new Vector2(0.11 * cScale, 0.12 * cScale));
 
 		// ball
 		{
 			physicsScene.balls = [];
-			const numBalls = 200;
-
+			const numBalls = 500;
+			let delay = 100;
 			for (let i = 0; i < numBalls; i++) {
 
-				const radius = 0.1 + Math.random() * 0.01;
+				const radius = 0.1 + Math.random() * 0.1;
 				const mass = Math.PI * radius * radius;
 
-				const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
-				const vel = new Vector2(-1.0 + 2.0 * Math.random(), -1.0 + 2.0 * Math.random());
+				//const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
+				const pos = new Vector2(0.1 * simWidth, 0.9 * simHeight);
+				const f = 5;
+				delay += 100 + Math.random() * 500;
+				//const vel = new Vector2((-1.0 + 2.0 * Math.random()) * f , (-1.0 + 2.0 * Math.random())*f);
+				const vel = new Vector2((1) * f , (-1 )*f);
 
-				physicsScene.balls.push(new Ball(radius, mass, pos, vel,0.1));
+				physicsScene.balls.push(new Ball(radius, mass, pos, vel,0.1,delay));
 
 			}
 		}
@@ -237,19 +276,38 @@ function main() {
 		// border
 		if(physicsScene.border.length >= 2){
 			ctx.strokeStyle = "#5588ff";
-			ctx.lineWidth = 6;
+			ctx.lineWidth = 0.1 * cScale * 2;
 
 			//ctx.beginPath();
 			// var v = physicsScene.border[0];
 			// ctx.moveTo(cX(v), cY(v));
 			for (var i = 0; i < physicsScene.border.length + 0; i = i + 2) {
+				
+				 ctx.beginPath();
+				 var v = physicsScene.border[i];
+				 ctx.moveTo(cX(v), cY(v));
+				 v = physicsScene.border[i + 1];
+				 ctx.lineTo(cX(v), cY(v));
+				 ctx.stroke();
+
+				var v1 = physicsScene.border[i];
+				var v2 = physicsScene.border[i + 1];
+				
+				ctx.fillStyle = "#5588ff";
 				ctx.beginPath();
-				var v = physicsScene.border[i];
-				ctx.moveTo(cX(v), cY(v));
-				v = physicsScene.border[i + 1];
-				ctx.lineTo(cX(v), cY(v));
-				ctx.stroke();
+				ctx.arc(cX(v1), cY(v1), cScale * 0.1, 0.0, 2.0 * Math.PI);
+				ctx.closePath();
+				ctx.fill();
+
+				ctx.fillStyle = "#5588ff";
+				ctx.beginPath();
+				ctx.arc(cX(v2), cY(v2), cScale * 0.1, 0.0, 2.0 * Math.PI);
+				ctx.closePath();
+				ctx.fill();
 			}
+
+			
+
 			//ctx.stroke();	
 			ctx.lineWidth = 1;
 		}
@@ -295,8 +353,8 @@ function main() {
 		let newV1 = (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * restitution) / (m1 + m2);
 		let newV2 = (m1 * v1 + m2 * v2 - m1 * (v2 - v1) * restitution) / (m1 + m2);
 
-		ball1.vel.add(dir, newV1 - v1);
-		ball2.vel.add(dir, newV2 - v2);
+		ball1.vel.add(dir, (newV1 - v1)*0.9);
+		ball2.vel.add(dir, (newV2 - v2)*0.9);
 	}
 
 	function handleWallCollision(ball, worldSize) {
@@ -327,77 +385,59 @@ function main() {
 		if (border.length < 2)
 			return;
 
-		// find closest segment;
+		// find closest segment;	
 
-		var d = new Vector2();
+        for (var i = 0; i < border.length; i = i+2){
+
+			var d = new Vector2();
 		var closest = new Vector2();
 		var ab = new Vector2();
 		var reflect = new Vector2();
 		var normal;
 
 		var minDist = 25;
-		var radius = 0.50;
+		var radius = 0.10;
 
-		for (var i = 0; i < border.length; i++) {
+		
 			var a = border[i];
 			var b = border[(i + 1) % border.length];
 			var c = closestPointOnSegment(ball.pos, a, b); // ближайшая точка на сегменте к шарика
 			d.subtractVectors(ball.pos, c); // вектор от ближайшей точки к центру шарика
 			var dist = d.length(); // длина вектора от ближней точки к шарику 
-			if (i == 0 ) {
+	
 				minDist = dist;
 				closest.set(c);
 				ab.subtractVectors(b, a);
 				normal = ab.perp();
-			}
-		}
+		
 
+		// // // push out
 		// // push out
 		d.subtractVectors(ball.pos, closest);
 		var dist = d.length();
-		if (dist < (ball.radius + radius)) {
-			//d.set(normal);
-			// dist = normal.length();
 
-			if(c.x > ball.pos.x){
-				//I - 2.0 * dot(N, I) * N.
-				normal.normalize();
-				let I =  ball.vel.negativ();
-				I.normalize();
-				let NdotI = I.dot(normal);
-				normal.scale(2.0 * NdotI);
-				reflect.subtractVectors(normal, I);
+		if(dist < (radius + ball.radius)){
+        //   ball.vel.add( new Vector2(0,1), 0.1);
+		   let posNew = d.clone()
+		   posNew.normalize();
+		   posNew.scale(radius + ball.radius);
 
-				reflect.scale(0.5); 
-				// console.log(ball.vel.length());
-				// console.log(reflect);
+		   let posNew2 =  new Vector2(); 
+		   posNew2.addVectors(closest,posNew)
+		   ball.pos.set(posNew2);
 
-				ball.vel.x = reflect.x; 
-				ball.vel.y = reflect.y;
-			}
-			else{
-				// ball.vel.x *= -1; 
-				// ball.vel.y *= -1;
-			}
+		  // ball.vel.set(ball.vel.negativ());
 
-
-				//ball.vel.add(d, 1);
+		  let n = new Vector2(0,1);
+		  n = normal.clone();
+		  let l = new Vector2(2,2);
+		  l = ball.vel.clone().negativ();
+		  let posNewReflect = new Vector2().reflect(l,n);  
+		  posNewReflect.scale(ball.vel.length());		  
+          ball.vel.set(posNewReflect);
 		}
-		// d.scale(1.0 / dist);
 
-		// if (d.dot(normal) >= 0.0) {
-		// 	if (dist > (ball.radius)) 
-		// 		return;
-		// 	ball.pos.add(d, ball.radius - dist);
-		// }
-		// else
-		// 	ball.pos.add(d, -(dist + ball.radius));
-
-		// update velocity
-		// var v = ball.vel.dot(d);
-		// var vnew = Math.abs(v) * ball.restitution;
-
-		//ball.vel.add(d, vnew - v);
+		}		
 	}
 
 
@@ -411,6 +451,15 @@ function main() {
 		for (let i = 0; i < physicsScene.balls.length; i++) {
 			var ball = physicsScene.balls[i];
 			var ballOldpos = new Vector2(ball.pos.x,ball.pos.y);
+
+			//delay
+			const endTime = performance.now()
+			const elapsedTime = endTime - startTime;
+			if(elapsedTime < ball.delay){
+				continue;
+			}
+
+
 			ball.simulate(physicsScene.dt, physicsScene.gravity);
 
 			for (let j = i + 1; j < physicsScene.balls.length; j++) {
