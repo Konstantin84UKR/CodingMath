@@ -235,7 +235,7 @@ function main() {
 		// ball
 		{
 			physicsScene.balls = [];
-			const numBalls = 500;
+			const numBalls = 100;
 			let delay = 100;
 			for (let i = 0; i < numBalls; i++) {
 
@@ -243,9 +243,9 @@ function main() {
 				const mass = Math.PI * radius * radius;
 
 				//const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
-				const pos = new Vector2(0.1 * simWidth, 0.9 * simHeight);
+				const pos = new Vector2(0.1 * simWidth , 0.9 * simHeight);
 				const f = 5;
-				delay += 100 + Math.random() * 500;
+				delay += 100 + Math.random() * 100;
 				//const vel = new Vector2((-1.0 + 2.0 * Math.random()) * f , (-1.0 + 2.0 * Math.random())*f);
 				const vel = new Vector2((1) * f , (-1 )*f);
 
