@@ -15,7 +15,7 @@ function main() {
 	const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
 	const simWidth = canvas.width / cScale;
 	const simHeight = canvas.height / cScale;
-		
+
 	const startTime = performance.now();
 
 	function cX(pos) {
@@ -81,13 +81,13 @@ function main() {
 		negativ() {
 			return new Vector2(-this.x, -this.y);
 		}
-		normalize(){
+		normalize() {
 			let L = this.length();
 			this.x = this.x / L;
 			this.y = this.y / L;
 		}
 
-		reflect(incidentVector, normalVector){
+		reflect(incidentVector, normalVector) {
 			// Нормализация векторов
 			incidentVector.normalize();
 			normalVector.normalize();
@@ -98,7 +98,7 @@ function main() {
 			let reflectedVector = normalVector.clone();
 			// Вычисление вектора отражения
 			reflectedVector.scale(2);
-			reflectedVector.subtract(incidentVector,1);
+			reflectedVector.subtract(incidentVector, 1);
 
 			return reflectedVector;
 		}
@@ -122,7 +122,7 @@ function main() {
 		let closest = a.clone();
 		return closest.add(ab, t);
 		//t = Math.max(0.0, Math.min(1.0, (p.dot(ab) - a.dot(ab)) / t));
-    	//return closest.normalize().scale(t);
+		//return closest.normalize().scale(t);
 	}
 
 
@@ -139,7 +139,7 @@ function main() {
 		simulate(dt, gravity) {
 
 			this.vel.add(gravity, dt);
-		    this.vel.scale(physicsScene.friction)	
+			this.vel.scale(physicsScene.friction)
 			this.pos.add(this.vel, dt);
 		}
 	}
@@ -211,7 +211,7 @@ function main() {
 	};
 
 	function setupScene() {
-		
+
 		physicsScene.score = 0;
 
 		// border 1
@@ -225,12 +225,12 @@ function main() {
 
 		// // border 3
 		physicsScene.border.push(new Vector2(0.05 * cScale, 0.09 * cScale));
-		physicsScene.border.push(new Vector2(0.15 * cScale, 0.11 * cScale));
+		physicsScene.border.push(new Vector2(0.15 * cScale, 0.10 * cScale));
 
 
 		// // border 4
 		physicsScene.border.push(new Vector2(0.01 * cScale, 0.14 * cScale));
-		physicsScene.border.push(new Vector2(0.11 * cScale, 0.12 * cScale));
+		physicsScene.border.push(new Vector2(0.11 * cScale, 0.13 * cScale));
 
 		// ball
 		{
@@ -243,17 +243,17 @@ function main() {
 				const mass = Math.PI * radius * radius;
 
 				//const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
-				const pos = new Vector2(0.1 * simWidth , 0.9 * simHeight);
-				const f = 5;
+				const pos = new Vector2(0.1 * simWidth, 0.9 * simHeight);
+				const f = 15;
 				delay += 100 + Math.random() * 100;
 				//const vel = new Vector2((-1.0 + 2.0 * Math.random()) * f , (-1.0 + 2.0 * Math.random())*f);
-				const vel = new Vector2((1) * f , (-1 )*f);
+				const vel = new Vector2((1) * f, (-1) * f);
 
-				physicsScene.balls.push(new Ball(radius, mass, pos, vel,0.1,delay));
+				physicsScene.balls.push(new Ball(radius, mass, pos, vel, 0.1, delay));
 
 			}
 		}
-		
+
 		// obstacles 
 		{
 
@@ -274,7 +274,7 @@ function main() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		// border
-		if(physicsScene.border.length >= 2){
+		if (physicsScene.border.length >= 2) {
 			ctx.strokeStyle = "#5588ff";
 			ctx.lineWidth = 0.1 * cScale * 2;
 
@@ -282,17 +282,17 @@ function main() {
 			// var v = physicsScene.border[0];
 			// ctx.moveTo(cX(v), cY(v));
 			for (var i = 0; i < physicsScene.border.length + 0; i = i + 2) {
-				
-				 ctx.beginPath();
-				 var v = physicsScene.border[i];
-				 ctx.moveTo(cX(v), cY(v));
-				 v = physicsScene.border[i + 1];
-				 ctx.lineTo(cX(v), cY(v));
-				 ctx.stroke();
+
+				ctx.beginPath();
+				var v = physicsScene.border[i];
+				ctx.moveTo(cX(v), cY(v));
+				v = physicsScene.border[i + 1];
+				ctx.lineTo(cX(v), cY(v));
+				ctx.stroke();
 
 				var v1 = physicsScene.border[i];
 				var v2 = physicsScene.border[i + 1];
-				
+
 				ctx.fillStyle = "#5588ff";
 				ctx.beginPath();
 				ctx.arc(cX(v1), cY(v1), cScale * 0.1, 0.0, 2.0 * Math.PI);
@@ -306,7 +306,7 @@ function main() {
 				ctx.fill();
 			}
 
-			
+
 
 			//ctx.stroke();	
 			ctx.lineWidth = 1;
@@ -318,9 +318,9 @@ function main() {
 			const ball = physicsScene.balls[i];
 
 			ctx.beginPath();
-			if(ball.sleep){
+			if (ball.sleep) {
 				ctx.fillStyle = "#5588ff";
-			}else{
+			} else {
 				ctx.fillStyle = "#ff8855";
 			}
 			ctx.arc(cX(ball.pos), cY(ball.pos), cScale * ball.radius, 0.0, 2.0 * Math.PI);
@@ -353,8 +353,8 @@ function main() {
 		let newV1 = (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * restitution) / (m1 + m2);
 		let newV2 = (m1 * v1 + m2 * v2 - m1 * (v2 - v1) * restitution) / (m1 + m2);
 
-		ball1.vel.add(dir, (newV1 - v1)*0.9);
-		ball2.vel.add(dir, (newV2 - v2)*0.9);
+		ball1.vel.add(dir, (newV1 - v1) * 0.9);
+		ball2.vel.add(dir, (newV2 - v2) * 0.9);
 	}
 
 	function handleWallCollision(ball, worldSize) {
@@ -380,85 +380,79 @@ function main() {
 	}
 
 	// ---------------------------------------------------------------------
-	function handleBallBorderCollision(ball, border) 
-	{
+	function handleBallBorderCollision(ball, border) {
 		if (border.length < 2)
 			return;
 
 		// find closest segment;	
 
-        for (var i = 0; i < border.length; i = i+2){
+		for (var i = 0; i < border.length; i = i + 2) {
 
 			var d = new Vector2();
-		var closest = new Vector2();
-		var ab = new Vector2();
-		var reflect = new Vector2();
-		var normal;
+			var closest = new Vector2();
+			var ab = new Vector2();
+			var reflect = new Vector2();
+			var normal;
 
-		var minDist = 25;
-		var radius = 0.10;
+			var minDist = 25;
+			var radius = 0.10;
 
-		
+
 			var a = border[i];
 			var b = border[(i + 1) % border.length];
 			var c = closestPointOnSegment(ball.pos, a, b); // ближайшая точка на сегменте к шарика
 			d.subtractVectors(ball.pos, c); // вектор от ближайшей точки к центру шарика
 			var dist = d.length(); // длина вектора от ближней точки к шарику 
-	
-				minDist = dist;
-				closest.set(c);
-				ab.subtractVectors(b, a);
-				normal = ab.perp();
-		
 
-		// // // push out
-		// // push out
-		d.subtractVectors(ball.pos, closest);
-		var dist = d.length();
+			minDist = dist;
+			closest.set(c);
+			ab.subtractVectors(b, a);
+			normal = ab.perp();
 
-		if(dist < (radius + ball.radius)){
-        //   ball.vel.add( new Vector2(0,1), 0.1);
-		   let posNew = d.clone()
-		   posNew.normalize();
-		   posNew.scale(radius + ball.radius);
 
-		   let posNew2 =  new Vector2(); 
-		   posNew2.addVectors(closest,posNew)
-		   ball.pos.set(posNew2);
+			// // // push out
+			// // push out
+			d.subtractVectors(ball.pos, closest);
+			var dist = d.length();
 
-		  // ball.vel.set(ball.vel.negativ());
+			if (dist < (radius + ball.radius)) {
+				//   ball.vel.add( new Vector2(0,1), 0.1);
+				let posNew = d.clone()
+				posNew.normalize();
+				posNew.scale(radius + ball.radius);
 
-		  let n = new Vector2(0,1);
-		  n = normal.clone();
-		  let l = new Vector2(2,2);
-		  l = ball.vel.clone().negativ();
-		  let posNewReflect = new Vector2().reflect(l,n);  
-		  posNewReflect.scale(ball.vel.length());		  
-          ball.vel.set(posNewReflect);
+				let posNew2 = new Vector2();
+				posNew2.addVectors(closest, posNew)
+				ball.pos.set(posNew2);
+
+				// ball.vel.set(ball.vel.negativ());
+
+				let n = new Vector2(0, 1);
+				n = normal.clone();
+				let l = new Vector2(2, 2);
+				l = ball.vel.clone().negativ();
+				let posNewReflect = new Vector2().reflect(l, n);
+				posNewReflect.scale(ball.vel.length());
+				ball.vel.set(posNewReflect);
+			}
+
 		}
-
-		}		
 	}
-
-
 	// ------------------------------------------------------
 
 	// Simulation ----------------------------------
 	function simulate() {
 
-		
-
 		for (let i = 0; i < physicsScene.balls.length; i++) {
 			var ball = physicsScene.balls[i];
-			var ballOldpos = new Vector2(ball.pos.x,ball.pos.y);
+			var ballOldpos = new Vector2(ball.pos.x, ball.pos.y);
 
 			//delay
 			const endTime = performance.now()
 			const elapsedTime = endTime - startTime;
-			if(elapsedTime < ball.delay){
+			if (elapsedTime < ball.delay) {
 				continue;
 			}
-
 
 			ball.simulate(physicsScene.dt, physicsScene.gravity);
 
@@ -470,15 +464,14 @@ function main() {
 			handleWallCollision(ball, physicsScene.worldSize);
 			handleBallBorderCollision(ball, physicsScene.border);
 
-			let posForSleep = new Vector2().subtractVectors(ballOldpos,ball.pos).length();
-			if(posForSleep < 0.001){
-			   ball.sleep = true;
-			}else{
-			   ball.sleep = false;
+			let posForSleep = new Vector2().subtractVectors(ballOldpos, ball.pos).length();
+			if (posForSleep < 0.001) {
+				ball.sleep = true;
+			} else {
+				ball.sleep = false;
 			}
+
 		}
-
-
 	}
 	// make browser to call repeatedly -------------
 	function update() {
