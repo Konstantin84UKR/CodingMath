@@ -19,7 +19,7 @@ function main() {
 	const center = {x: 0 , y: -200 };
 
 	const lengths = [0.2, 0.2, 0.2, 0.2];
-    const masses = [1.0, 0.5, 0.3, 0.2];
+    const masses = [1.0, 1.0, 1.0, 1.0];
     const angles = [0.5 * Math.PI, Math.PI, Math.PI, Math.PI];
 
 	function cX(pos) { return (center.x + (canvas.width / 2)) + pos.x * cScale; }

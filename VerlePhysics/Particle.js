@@ -3,7 +3,7 @@ import { Vector } from "./Vector.js";
 
 export class Particle {
 
-	constructor({x, y, speed, direction, grav}){
+	constructor({x, y, speed, direction, grav, mass = 2.0}){
 
     // this.x = x;
     // this.y = y;
@@ -17,13 +17,13 @@ export class Particle {
       this.positionOld.subtractFrom(this.velocity);
     }
 
-    this.mass = 2.0;
+    this.mass = mass;
     this.radius = 5.0;
 		this.friction = 0.97;
     this.bounce = 0.5;
     this.sellect = false;
 
-    this.gravity = new Vector(0,grav||0.5); // гравитация в низ экрана
+    this.gravity = new Vector(0, grav); // гравитация в низ экрана
 
 }
     

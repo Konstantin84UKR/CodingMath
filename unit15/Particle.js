@@ -3,11 +3,11 @@ import { Vector } from "./Vector.js";
 
 export class Particle {
 
-	constructor(x,y,speed, direction, grav){
+	constructor(x,y,speed, direction, grav, mass = 1.0){
 
     this.position = new Vector(x,y);
     this.velocity = new Vector(0, 0); 
-    this.mass = 1.0;
+    this.mass = mass;
     this.radius = 0;
 		this.friction = 1;
 
