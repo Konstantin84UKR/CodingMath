@@ -47,9 +47,13 @@ particles.push(new Particle({
   direction: Math.random() * Math.PI * 2,
   grav
 }));
-particles.push(new Particle({x: 200, y: 100}));
-particles.push(new Particle({x: 200, y: 200}));
-particles.push(new Particle({x: 100, y: 200}));
+particles.push(new Particle({x: 200, y: 100, grav}));
+particles.push(new Particle({x: 200, y: 200, grav}));
+particles.push(new Particle({x: 100, y: 200, grav}));
+
+particles.push(new Particle({x: 300, y: 20 , mass: 0.0, grav : 0}));
+particles.push(new Particle({x: 250, y: 20 , grav}));
+particles.push(new Particle({x: 200, y: 20 , grav}));
 
 // sticks
 sticks.push(new Stick(particles[0], particles[1]))
@@ -58,6 +62,10 @@ sticks.push(new Stick(particles[2], particles[3]))
 sticks.push(new Stick(particles[3], particles[0]))
 sticks.push(new Stick(particles[3], particles[1]))
 sticks.push(new Stick(particles[0], particles[2]))
+
+sticks.push(new Stick(particles[5], particles[4]))
+sticks.push(new Stick(particles[6], particles[5]))
+sticks.push(new Stick(particles[0], particles[6]))
 
 
 canvas.addEventListener("mousemove", function (e) {

@@ -1,5 +1,84 @@
 import * as glMatrix from "../common/glm/index.js";
 
+class HashWithMap{
+	constructor(tablScale,simMinWidth,cScale){
+		
+		this.tablScale = tablScale;
+		this.map = new Map();		
+		this.tableColumns = tablScale * simMinWidth;
+		this.cells = tablScale * tablScale;
+		this.pixelOneCells = cScale / tablScale;
+		this.cScale = cScale;
+
+	}
+
+	hashCoords(xi, yi, zi) {
+
+		xi = Math.trunc(xi);
+		yi = Math.trunc(yi);
+		zi = Math.trunc(zi);
+
+		var h = (xi * 92837111) ^ (yi * 689287499) ^ (zi * 283923481);	// fantasy function
+		return Math.abs(h) % this.cells; 
+	}
+	
+	hashCoordsNew(xi, yi, zi) {
+
+
+		if(xi == undefined){
+			zi= 1;
+		}
+
+		if(yi == undefined){
+			zi= 1;
+		}
+		//  xi = Math.max(xi,0);
+		//  yi = Math.max(yi,0);
+		// zi = Math.trunc(zi);
+
+		var h = 'x'+xi+'y'+yi;	// fantasy function
+		return h; 
+	}
+
+
+	getGrid(cell) {
+		let hashCode = this.hashCoordsNew(cell.x, cell.y, 1);
+		if(this.map.has(hashCode)){
+			return this.map.get(hashCode)	
+		}else{
+			let arr = [];
+			this.map.set(hashCode , arr);
+			return this.map.get(hashCode)	
+		}	
+	}
+
+	setGrid(cell, ball) {
+		
+		let hashCode = this.hashCoordsNew(cell.x, cell.y, 1);
+		let arr = [];
+		if(this.map.has(hashCode)){
+			arr = this.getGrid(cell);
+			arr.push(ball);	
+		}else{
+			arr.push(ball);	
+			this.map.set(hashCode , arr);
+		}		
+	}
+
+	clearHashSet(){
+		this.map.clear();
+	}
+
+	cellCoords(ball){
+		
+		let x = Math.max(Math.trunc((ball.pos.x * this.cScale / this.pixelOneCells)),0); //Math.trunc()
+		let y = Math.max(Math.trunc((ball.pos.y * this.cScale / this.pixelOneCells)),0);	
+
+		return {x,y}
+	}
+	
+}
+
 
 function main() {
     // Canvas setup --------------------------------
@@ -14,6 +93,8 @@ function main() {
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
+	const tablScale = 25;
+	const numBalls = 2500;
 
     function cX(pos) {
         return pos.x * cScale;
@@ -75,11 +156,14 @@ function main() {
 	}
 
     class Ball{
-        constructor(radius, mass, pos, vel){
+        constructor(radius, mass, pos, vel,id){
             this.radius = radius;
             this.mass = mass;
             this.pos = pos.clone();
             this.vel = vel.clone();
+			this.fillStyle = "#ff8855";
+			this.marker = false;
+			this.id = id;
         }
         simulate(dt, gravity) {
 			this.vel.add(gravity, dt);
@@ -100,42 +184,87 @@ function main() {
 
     function setupScene(){
         physicsScene.balls = [];
-        const numBalls = 250;
-            
+                   
         for (let i = 0; i < numBalls; i++) {
            
-            const radius = 0.01 + Math.random() * 0.01;
+            const radius = 0.005 //+ Math.random() * 0.01;
             const mass = Math.PI * radius * radius;
             
             const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
-            const vel = new Vector2(-1.0 + 2.0 * Math.random(), -1.0 + 2.0 * Math.random());
-           
-            physicsScene.balls.push(new Ball(radius, mass, pos, vel));
+			const f = 1.0;
+            const vel = new Vector2((-1.0 + 2.0 * Math.random())*f, (-1.0 + 2.0 * Math.random())*f);
+            const id = i;
+            physicsScene.balls.push(new Ball(radius, mass, pos, vel,id ));
             
         }
 
-    }
-    
+		physicsScene.balls[0].marker = true;
+		physicsScene.balls[0].radius = 0.01
 
-    
+    }
+
+
+	//HASH------------------------------------------
+
+	let hashSet  = new HashWithMap(tablScale,simMinWidth,cScale);
+	    
     // Drawing -------------------------------------
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = "#ff8855";
+		drawGrid()
+        //ctx.fillStyle = "#ff8855";
 
         for (let i = 0; i < physicsScene.balls.length; i++) {
             const ball = physicsScene.balls[i];
+			ctx.fillStyle = ball.fillStyle;
 
-            ctx.beginPath();
+			
+			if(ball.marker){
+			 	ctx.fillStyle = "#00ffff";
+			}
+           
+			ctx.beginPath();
             ctx.arc(cX(ball.pos), cY(ball.pos), cScale * ball.radius, 0.0, 2.0 * Math.PI);
             ctx.closePath();
             ctx.fill();
+	
         }
+
+    }
+
+	function drawGrid() {
+        	
+
+		for (let i = 0; i < hashSet.tableColumns ; i++) {
+			for (let j = 0; j < hashSet.tableColumns; j++) {
+				
+				ctx.fillStyle = "#222222";
+
+				//HASH TEST 
+				let HG = hashSet.hashCoordsNew(i , (j - hashSet.tableColumns  + 1) * -1 , 1);
+				let b = physicsScene.balls[0];
+				let CB = hashSet.cellCoords(b);
+				for (let Hx = -1; Hx < 2; Hx++) {
+					for (let Hy = -1; Hy < 2; Hy++) {						
+						let HB = hashSet.hashCoordsNew(CB.x + Hx, CB.y + Hy, 1);
+						if(HG == HB){
+							ctx.fillStyle = "#225522";
+						}
+					}					
+				}
+				
+				const offset = (canvas.width / hashSet.tableColumns  *  0.1) ;
+				const celllength =  (canvas.width / hashSet.tableColumns  * 0.8) ;
+
+				ctx.beginPath();
+				ctx.fillRect((i * hashSet.pixelOneCells  + offset) , (j * hashSet.pixelOneCells  + offset)  , celllength, celllength);
+			}
+		}
 
     }
     // collision handling -------------------------------------------------------
     function handleBallCollision(ball1, ball2, restitution) {
+
         let dir = new Vector2();
 		dir.subtractVectors(ball2.pos, ball1.pos);
 		let d = dir.length();
@@ -189,18 +318,59 @@ function main() {
 
     // Simulation ----------------------------------
     function simulate() {
-
+		
+		for (let i = 0; i < physicsScene.balls.length; i++) {
+			let ball = physicsScene.balls[i];
+			let cell = hashSet.cellCoords(ball);
+			ball.fillStyle = "#ff8855";
+			
+			hashSet.setGrid(cell, ball); 			
+		}
+	
         for (let i = 0; i < physicsScene.balls.length; i++) {
-			var ball1 = physicsScene.balls[i];
-			ball1.simulate(physicsScene.dt, physicsScene.gravity);
+			let ball1 = physicsScene.balls[i];
 
-			for (let j = i + 1; j < physicsScene.balls.length; j++) {
-				var ball2 = physicsScene.balls[j];
+			ball1.simulate(physicsScene.dt, physicsScene.gravity);
+		
+			let cell = hashSet.cellCoords(ball1);
+			let BallsForTestCollision = [];
+			for (let xi = -1; xi < 2; xi++) {
+
+				for (let yj = -1; yj < 2; yj++) {
+					
+					const Xh = cell.x + xi;
+					const Yh = cell.y + yj;
+
+					let arr = hashSet.getGrid({x:Xh,y:Yh});
+					BallsForTestCollision.push(arr);
+									
+				}
+			} 
+		
+			BallsForTestCollision = BallsForTestCollision.flat();
+			for (let j = 0; j < BallsForTestCollision.length; j++) {			
+				let ball2 = BallsForTestCollision[j];	
+				
+				if(ball1.marker){
+					ball2.fillStyle = "#ffff55";
+				}
+
 				handleBallCollision(ball1, ball2, physicsScene.restitution);
 			}
 
-			handleWallCollision(ball1, physicsScene.worldSize);
+			handleWallCollision(ball1, physicsScene.worldSize);		
 		}
+		
+		hashSet.clearHashSet();
+		
+		// for (let i = 0; i < physicsScene.balls.length; i++) {
+		// 	let ball = physicsScene.balls[i];
+		// 	let cell = hashSet.cellCoords(ball);
+		// 	ball.fillStyle = "#ff8855";
+			
+		// 	hashSet.setGrid(cell, ball); 			
+		// }
+
     }
     // make browser to call repeatedly -------------
     function update() {
@@ -209,6 +379,7 @@ function main() {
 		requestAnimationFrame(update);
     }
     setupScene();
+	//createHashSet(); // HASH
     update();
 }
 main();

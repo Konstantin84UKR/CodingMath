@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SPH Simulation</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" width="800" height="600"></canvas>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const numParticles = 500;
+    const particles = [];
+    const radius = 5;
+    const restDensity = 100;
+    const stiffness = 1000;
+    const gravity = 0.0;
+
+    class Particle {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.vx = 0;
+            this.vy = 0;
+            this.density = 0;
+            this.pressure = 0;
+        }
+
+        update() {
+            this.vx += 0; // Add other forces here
+            this.vy += gravity; // Gravity force
+            this.x += this.vx;
+            this.y += this.vy;
+
+            // Boundary conditions
+            if (this.x < radius) {
+                this.x = radius + 0.1;
+                this.vx *= -0.9;
+            } else if (this.x > canvas.width - radius) {
+                this.x = canvas.width - radius;
+                this.vx *= -0.9;
+            }
+            if (this.y < radius) {
+                this.y = radius;
+                this.vy *= -0.9;
+            } else if (this.y > canvas.height - radius) {
+                this.y = canvas.height - radius;
+                this.vy *= -0.9;
+            }
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgb(0,128,256)`;
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numParticles; i++) {
+            const x = Math.random() * canvas.width * 0.5 + (canvas.width * 0.25);
+            const y = Math.random() * canvas.height * 0.5 + (canvas.height * 0.25);
+            particles.push(new Particle(x, y));
+        }
+    }
+
+    function computeDensityPressure() {
+        for (let i = 0; i < numParticles; i++) {
+            let p = particles[i];
+            p.density = 0;
+            for (let j = 0; j < numParticles; j++) {
+                let q = particles[j];
+                let dx = q.x - p.x;
+                let dy = q.y - p.y;
+                let distSq = dx * dx + dy * dy;
+                if (distSq < radius * radius) {
+                    let dist = Math.sqrt(distSq);
+                    p.density += (1 - dist / radius) * restDensity;
+                }
+            }
+            p.pressure = stiffness * (p.density - restDensity);
+        }
+    }
+
+    function computeForces() {
+        for (let i = 0; i < numParticles; i++) {
+            let p = particles[i];
+            let fx = 0;
+            let fy = 0;
+            for (let j = 0; j < numParticles; j++) {
+                if (i !== j) {
+                    let q = particles[j];
+                    let dx = q.x - p.x;
+                    let dy = q.y - p.y;
+                    let distSq = dx * dx + dy * dy;
+                    if (distSq < radius * radius) {
+                        let dist = Math.sqrt(distSq);
+                        let force = (p.pressure + q.pressure) / 2 / dist;
+                        fx += dx * force;
+                        fy += dy * force;
+                    }
+                }
+            }
+            p.vx += fx;
+            p.vy += fy;
+        }
+    }
+
+    function updateParticles() {
+        for (let i = 0; i < numParticles; i++) {
+            particles[i].update();
+        }
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < numParticles; i++) {
+            particles[i].draw();
+        }
+    }
+
+    function loop() {
+        //computeDensityPressure();
+        computeForces();
+        updateParticles();
+        drawParticles();
+        requestAnimationFrame(loop);
+    }
+
+    initParticles();
+    loop();
+</script>
+</body>
+</html>
