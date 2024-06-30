@@ -1,5 +1,83 @@
 //import * as glMatrix from "../common/glm/index.js";
 //import { copy } from "../common/glm/mat2.js";
+class HashWithMap{
+	constructor(tablScale,simMinWidth,cScale){
+		
+		this.tablScale = tablScale;
+		this.map = new Map();		
+		this.tableColumns = tablScale * simMinWidth;
+		this.cells = tablScale * tablScale;
+		this.pixelOneCells = cScale / tablScale;
+		this.cScale = cScale;
+
+	}
+
+	hashCoords(xi, yi, zi) {
+
+		xi = Math.trunc(xi);
+		yi = Math.trunc(yi);
+		zi = Math.trunc(zi);
+
+		var h = (xi * 92837111) ^ (yi * 689287499) ^ (zi * 283923481);	// fantasy function
+		return Math.abs(h) % this.cells; 
+	}
+	
+	hashCoordsNew(xi, yi, zi) {
+
+
+		if(xi == undefined){
+			zi= 1;
+		}
+
+		if(yi == undefined){
+			zi= 1;
+		}
+		//  xi = Math.max(xi,0);
+		//  yi = Math.max(yi,0);
+		// zi = Math.trunc(zi);
+
+		var h = 'x'+xi+'y'+yi;	// fantasy function
+		return h; 
+	}
+
+
+	getGrid(cell) {
+		let hashCode = this.hashCoordsNew(cell.x, cell.y, 1);
+		if(this.map.has(hashCode)){
+			return this.map.get(hashCode)	
+		}else{
+			let arr = [];
+			this.map.set(hashCode , arr);
+			return this.map.get(hashCode)	
+		}	
+	}
+
+	setGrid(cell, ball) {
+		
+		let hashCode = this.hashCoordsNew(cell.x, cell.y, 1);
+		let arr = [];
+		if(this.map.has(hashCode)){
+			arr = this.getGrid(cell);
+			arr.push(ball);	
+		}else{
+			arr.push(ball);	
+			this.map.set(hashCode , arr);
+		}		
+	}
+
+	clearHashSet(){
+		this.map.clear();
+	}
+
+	cellCoords(ball){
+		
+		let x = Math.max(Math.trunc((ball.pos.x * this.cScale / this.pixelOneCells)),0); //Math.trunc()
+		let y = Math.max(Math.trunc((ball.pos.y * this.cScale / this.pixelOneCells)),0);	
+
+		return {x,y}
+	}
+	
+}
 
 
 function main() {
@@ -7,14 +85,16 @@ function main() {
 
 	/** @type {HTMLCanvasElement} */
 	const canvas = document.getElementById("canvas");
-	canvas.width = 600;
-	canvas.height = 600;
+	canvas.width = 500;
+	canvas.height = 500;
 	const ctx = canvas.getContext('2d');
 
 	const simMinWidth = 10.0;
 	const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
 	const simWidth = canvas.width / cScale;
 	const simHeight = canvas.height / cScale;
+	const tablScale = 8;
+	const numBalls = 1000;
 
 	const startTime = performance.now();
 
@@ -215,39 +295,40 @@ function main() {
 		physicsScene.score = 0;
 
 		// border 1
-		physicsScene.border.push(new Vector2(0.05 * cScale, 0.03 * cScale));
-		physicsScene.border.push(new Vector2(0.15 * cScale, 0.05 * cScale));
+		physicsScene.border.push(new Vector2(0.1 * simWidth, 0.1 * simWidth));
+		physicsScene.border.push(new Vector2(0.9 * simWidth, 0.2 * simWidth));
 
 
 		// border 2 
-		physicsScene.border.push(new Vector2(0.01 * cScale, 0.07 * cScale));
-		physicsScene.border.push(new Vector2(0.11 * cScale, 0.06 * cScale));
+		physicsScene.border.push(new Vector2(0.8 * simWidth, 0.3 * simWidth));
+		physicsScene.border.push(new Vector2(0.1 * simWidth, 0.4 * simWidth));
 
 		// // border 3
-		physicsScene.border.push(new Vector2(0.05 * cScale, 0.09 * cScale));
-		physicsScene.border.push(new Vector2(0.15 * cScale, 0.10 * cScale));
+		physicsScene.border.push(new Vector2(0.3 * simWidth, 0.5 * simWidth));
+		physicsScene.border.push(new Vector2(0.9 * simWidth, 0.6 * simWidth));
 
 
 		// // border 4
-		physicsScene.border.push(new Vector2(0.01 * cScale, 0.14 * cScale));
-		physicsScene.border.push(new Vector2(0.11 * cScale, 0.13 * cScale));
+		physicsScene.border.push(new Vector2(0.6 * simWidth, 0.7 * simWidth));
+		physicsScene.border.push(new Vector2(0.1 * simWidth, 0.8 * simWidth));
 
 		// ball
 		{
 			physicsScene.balls = [];
-			const numBalls = 100;
-			let delay = 100;
+			//const numBalls = 100;
+			let delay = 10;
 			for (let i = 0; i < numBalls; i++) {
 
-				const radius = 0.1 + Math.random() * 0.1;
+				//const radius = 0.1 ;
+				const radius = 1.0 / simWidth  +  Math.random() * 1.0 / simWidth;
 				const mass = Math.PI * radius * radius;
 
 				//const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
 				const pos = new Vector2(0.1 * simWidth, 0.9 * simHeight);
-				const f = 15;
-				delay += 100 + Math.random() * 100;
+				const f = 10;
+				delay += 50 + Math.random() * 100;
 				//const vel = new Vector2((-1.0 + 2.0 * Math.random()) * f , (-1.0 + 2.0 * Math.random())*f);
-				const vel = new Vector2((1) * f, (-1) * f);
+				const vel = new Vector2((1) * f, (-1) * f * Math.random());
 
 				physicsScene.balls.push(new Ball(radius, mass, pos, vel, 0.1, delay));
 
@@ -267,7 +348,9 @@ function main() {
 
 	}
 
+	//HASH------------------------------------------
 
+	let hashSet  = new HashWithMap(tablScale, simMinWidth ,cScale);
 
 	// Drawing -------------------------------------
 	function draw() {
@@ -276,7 +359,7 @@ function main() {
 		// border
 		if (physicsScene.border.length >= 2) {
 			ctx.strokeStyle = "#5588ff";
-			ctx.lineWidth = 0.1 * cScale * 2;
+			ctx.lineWidth =  cScale * 0.1 * 2;
 
 			//ctx.beginPath();
 			// var v = physicsScene.border[0];
@@ -444,8 +527,18 @@ function main() {
 	function simulate() {
 
 		for (let i = 0; i < physicsScene.balls.length; i++) {
+			let ball = physicsScene.balls[i];
+			let cell = hashSet.cellCoords(ball);
+			ball.fillStyle = "#ff8855";
+			
+			hashSet.setGrid(cell, ball); 			
+		}
+
+		for (let i = 0; i < physicsScene.balls.length; i++) {
 			var ball = physicsScene.balls[i];
 			var ballOldpos = new Vector2(ball.pos.x, ball.pos.y);
+
+			let cell = hashSet.cellCoords(ball);
 
 			//delay
 			const endTime = performance.now()
@@ -456,10 +549,30 @@ function main() {
 
 			ball.simulate(physicsScene.dt, physicsScene.gravity);
 
-			for (let j = i + 1; j < physicsScene.balls.length; j++) {
-				var ball2 = physicsScene.balls[j];
+			let BallsForTestCollision = [];
+			for (let xi = -1; xi < 2; xi++) {
+
+				for (let yj = -1; yj < 2; yj++) {
+					
+					const Xh = cell.x + xi;
+					const Yh = cell.y + yj;
+
+					let arr = hashSet.getGrid({x:Xh,y:Yh});
+					BallsForTestCollision.push(arr);
+									
+				}
+			}
+			
+			BallsForTestCollision = BallsForTestCollision.flat();
+			for (let j = 0; j < BallsForTestCollision.length; j++) {
+				var ball2 = BallsForTestCollision[j];
 				handleBallCollision(ball, ball2, physicsScene.restitution);
 			}
+
+			// for (let j = i + 1; j < physicsScene.balls.length; j++) {
+			// 	var ball2 = physicsScene.balls[j];
+			// 	handleBallCollision(ball, ball2, physicsScene.restitution);
+			// }
 
 			handleWallCollision(ball, physicsScene.worldSize);
 			handleBallBorderCollision(ball, physicsScene.border);
@@ -472,6 +585,8 @@ function main() {
 			}
 
 		}
+
+		hashSet.clearHashSet();
 	}
 	// make browser to call repeatedly -------------
 	function update() {
