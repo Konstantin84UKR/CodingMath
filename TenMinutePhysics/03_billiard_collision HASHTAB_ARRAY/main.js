@@ -1,7 +1,7 @@
 import * as glMatrix from "../common/glm/index.js";
 
 class HashWithMap{
-	constructor(tablScale,simMinWidth,cScale){
+	constructor(tablScale,simMinWidth,cScale,numBalls){
 		
 		this.tablScale = tablScale;
 		this.map = new Map();		
@@ -9,6 +9,17 @@ class HashWithMap{
 		this.cells = tablScale * tablScale;
 		this.pixelOneCells = cScale / tablScale;
 		this.cScale = cScale;
+
+		this.arrCount = new Int32Array(this.tablScale * this.tablScale);
+		
+		this.arrPartialSums = [];
+		this.arrMain = [];
+
+		this.tableSize = 2 * numBalls;
+		this.cellStart = new Int32Array(this.cells + 1);
+		this.cellEntries = new Int32Array(this.cells + 1);
+		this.queryIds = new Int32Array(numBalls);
+		this.querySize = 0;
 
 	}
 
@@ -21,52 +32,16 @@ class HashWithMap{
 		var h = (xi * 92837111) ^ (yi * 689287499) ^ (zi * 283923481);	// fantasy function
 		return Math.abs(h) % this.cells; 
 	}
-	
-	hashCoordsNew(xi, yi, zi) {
 
-
-		if(xi == undefined){
-			zi= 1;
-		}
-
-		if(yi == undefined){
-			zi= 1;
-		}
-		//  xi = Math.max(xi,0);
-		//  yi = Math.max(yi,0);
-		// zi = Math.trunc(zi);
-
-		var h = 'x'+xi+'y'+yi;	// fantasy function
-		return h; 
-	}
-
-
-	getGrid(cell) {
-		let hashCode = this.hashCoordsNew(cell.x, cell.y, 1);
-		if(this.map.has(hashCode)){
-			return this.map.get(hashCode)	
-		}else{
-			let arr = [];
-			this.map.set(hashCode , arr);
-			return this.map.get(hashCode)	
-		}	
-	}
-
-	setGrid(cell, ball) {
+	setGridArray(cell, ball) {
 		
-		let hashCode = this.hashCoordsNew(cell.x, cell.y, 1);
-		let arr = [];
-		if(this.map.has(hashCode)){
-			arr = this.getGrid(cell);
-			arr.push(ball);	
-		}else{
-			arr.push(ball);	
-			this.map.set(hashCode , arr);
-		}		
+		let hashCode = this.hashCoords(cell.x, cell.y, 1);
+		this.cellStart[hashCode]	+= 1; 
 	}
 
 	clearHashSet(){
 		this.map.clear();
+		this.cellStart.fill(0);
 	}
 
 	cellCoords(ball){
@@ -75,6 +50,38 @@ class HashWithMap{
 		let y = Math.max(Math.trunc((ball.pos.y * this.cScale / this.pixelOneCells)),0);	
 
 		return {x,y}
+	}
+
+	setPartialSumsArray(){
+		let entrie = 0;
+
+		for (let index = 0; index < this.cellStart.length -1; index++) {
+			this.cellEntries[index] = this.cellStart[index] + entrie; 	
+			entrie += this.cellStart[index];		
+		}
+	}
+
+	queryIdsArray(cell,ball_ID){
+		let hashCode = this.hashCoords(cell.x, cell.y, 1);
+		this.cellEntries[hashCode] -= 1; 
+		const indexID = this.cellEntries[hashCode];
+		this.queryIds[indexID] = ball_ID;
+	}
+
+	getGridArray(cell, ballsArr){
+		let hashCode = this.hashCoords(cell.x, cell.y, 1);
+		const indexOfCell = this.cellEntries[hashCode];
+		const countOfCell = this.cellStart[hashCode];
+
+		const arrIDofCell = this.queryIds.slice(indexOfCell, indexOfCell + countOfCell);
+        let arrBalls = [] 
+		for (let index = 0; index < arrIDofCell.length; index++) {
+			const ballindex =arrIDofCell[index];
+			const ball = ballsArr[ballindex];
+			arrBalls.push(ball);
+		}
+
+		return arrBalls;
 	}
 	
 }
@@ -93,9 +100,9 @@ function main() {
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
-	const tablScale = 20;
-	const numBalls = 500;
-	const radiusBall = 0.01;
+	const tablScale = 10;
+	const numBalls = 100;
+	const radiusBall = 0.02;
 
     function cX(pos) {
         return pos.x * cScale;
@@ -157,7 +164,7 @@ function main() {
 	}
 
     class Ball{
-        constructor(radius, mass, pos, vel, id){
+        constructor(radius, mass, pos, vel,id){
             this.radius = radius;
             this.mass = mass;
             this.pos = pos.clone();
@@ -200,14 +207,15 @@ function main() {
         }
 
 		physicsScene.balls[0].marker = true;
-		physicsScene.balls[0].radius = radiusBall * 2;
+		physicsScene.balls[0].mass *= 5;
+		physicsScene.balls[0].radius = radiusBall *2 
 
     }
 
 
 	//HASH------------------------------------------
 
-	let hashSet  = new HashWithMap(tablScale,simMinWidth,cScale);
+	let hashSet  = new HashWithMap(tablScale,simMinWidth,cScale,numBalls);
 	    
     // Drawing -------------------------------------
     function draw() {
@@ -242,12 +250,12 @@ function main() {
 				ctx.fillStyle = "#222222";
 
 				//HASH TEST 
-				let HG = hashSet.hashCoordsNew(i , (j - hashSet.tableColumns  + 1) * -1 , 1);
+				let HG = hashSet.hashCoords(i , (j - hashSet.tableColumns  + 1) * -1 , 1);
 				let b = physicsScene.balls[0];
 				let CB = hashSet.cellCoords(b);
 				for (let Hx = -1; Hx < 2; Hx++) {
 					for (let Hy = -1; Hy < 2; Hy++) {						
-						let HB = hashSet.hashCoordsNew(CB.x + Hx, CB.y + Hy, 1);
+						let HB = hashSet.hashCoords(CB.x + Hx, CB.y + Hy, 1);
 						if(HG == HB){
 							ctx.fillStyle = "#225522";
 						}
@@ -324,8 +332,17 @@ function main() {
 			let ball = physicsScene.balls[i];
 			let cell = hashSet.cellCoords(ball);
 			ball.fillStyle = "#ff8855";
-			
-			hashSet.setGrid(cell, ball); 			
+						
+			hashSet.setGridArray(cell, ball);
+		}
+
+		// Заполняем пусте ячейки массива хешей
+		hashSet.setPartialSumsArray();
+
+		for (let ball_ID = 0; ball_ID < physicsScene.balls.length; ball_ID++) {
+			let ball = physicsScene.balls[ball_ID];
+			let cell = hashSet.cellCoords(ball);
+			hashSet.queryIdsArray(cell,ball_ID);
 		}
 	
         for (let i = 0; i < physicsScene.balls.length; i++) {
@@ -333,6 +350,8 @@ function main() {
 
 			ball1.simulate(physicsScene.dt, physicsScene.gravity);
 		
+
+			// Проверяем с хешами
 			let cell = hashSet.cellCoords(ball1);
 			let BallsForTestCollision = [];
 			for (let xi = -1; xi < 2; xi++) {
@@ -341,8 +360,8 @@ function main() {
 					
 					const Xh = cell.x + xi;
 					const Yh = cell.y + yj;
-
-					let arr = hashSet.getGrid({x:Xh,y:Yh});
+					
+					let arr = hashSet.getGridArray({x:Xh,y:Yh},physicsScene.balls);
 					BallsForTestCollision.push(arr);
 									
 				}
@@ -363,14 +382,7 @@ function main() {
 		}
 		
 		hashSet.clearHashSet();
-		
-		// for (let i = 0; i < physicsScene.balls.length; i++) {
-		// 	let ball = physicsScene.balls[i];
-		// 	let cell = hashSet.cellCoords(ball);
-		// 	ball.fillStyle = "#ff8855";
-			
-		// 	hashSet.setGrid(cell, ball); 			
-		// }
+	
 
     }
     // make browser to call repeatedly -------------
