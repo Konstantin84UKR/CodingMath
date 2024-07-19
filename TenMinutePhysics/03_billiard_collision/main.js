@@ -10,7 +10,7 @@ function main() {
     canvas.height = 500;
     const ctx = canvas.getContext('2d');
 
-    const simMinWidth = 1.0;
+    const simMinWidth = 0.5;
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
@@ -95,17 +95,17 @@ function main() {
 		worldSize : new Vector2(simWidth,simHeight),
 		paused: true,
 		balls: [],				
-		restitution : .95
+		restitution : 0.5
 	};
 
     function setupScene(){
         physicsScene.balls = [];
-        const numBalls = 250;
+        const numBalls = 5;
             
         for (let i = 0; i < numBalls; i++) {
            
             const radius = 0.01 + Math.random() * 0.01;
-            const mass = Math.PI * radius * radius;
+            const mass = radius;//Math.PI * radius * radius;
             
             const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);
             const vel = new Vector2(-1.0 + 2.0 * Math.random(), -1.0 + 2.0 * Math.random());
@@ -156,6 +156,9 @@ function main() {
 
 		let newV1 = (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * restitution) / (m1 + m2);
 		let newV2 = (m1 * v1 + m2 * v2 - m1 * (v2 - v1) * restitution) / (m1 + m2);
+
+		// let newV1 = (m1 - restitution * m2) * v1 + (1+ restitution)*m2*v2 / (m1 + m2);
+		// let newV2 = (m2 - restitution * m1) * v2 + (1+ restitution)*m1*v1 / (m1 + m2);
 
 		ball1.vel.add(dir, newV1 - v1);
 		ball2.vel.add(dir, newV2 - v2);

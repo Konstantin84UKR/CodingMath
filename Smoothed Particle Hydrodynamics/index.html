@@ -14,12 +14,13 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const numParticles = 500;
+    const numParticles = 100;
     const particles = [];
-    const radius = 5;
+    const radius = 10;
+    const radiusKernel = 50;
     const restDensity = 100;
-    const stiffness = 1000;
-    const gravity = 0.0;
+    const stiffness = 0.9;
+    const gravity = 0.000;
 
     class Particle {
         constructor(x, y) {
@@ -40,27 +41,47 @@
             // Boundary conditions
             if (this.x < radius) {
                 this.x = radius + 0.1;
-                this.vx *= -0.9;
+                this.vx *= -0.1;
             } else if (this.x > canvas.width - radius) {
                 this.x = canvas.width - radius;
-                this.vx *= -0.9;
+                this.vx *= -0.1;
             }
             if (this.y < radius) {
                 this.y = radius;
-                this.vy *= -0.9;
+                this.vy *= -0.1;
             } else if (this.y > canvas.height - radius) {
                 this.y = canvas.height - radius;
-                this.vy *= -0.9;
+                this.vy *= -0.1;
             }
         }
 
         draw() {
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, radiusKernel, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0,128,256,0.2)`;
+            ctx.fill();
+
+
             ctx.beginPath();
             ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
             ctx.fillStyle = `rgb(0,128,256)`;
             ctx.fill();
         }
     }
+
+    function SmoothingKernal(radiusKernel, dst){
+        let value = Math.max(0,radiusKernel  - dst)
+        return value * value
+    }
+
+    // function CalculateProperty(particle){
+    //     let property = 0;
+    //     for (let index = 0; index < particles.length; index++) {
+    //         const element = particles[index] - particle;
+            
+    //     }
+    // }
 
     function initParticles() {
         for (let i = 0; i < numParticles; i++) {
@@ -81,7 +102,8 @@
                 let distSq = dx * dx + dy * dy;
                 if (distSq < radius * radius) {
                     let dist = Math.sqrt(distSq);
-                    p.density += (1 - dist / radius) * restDensity;
+                    let distKernal = SmoothingKernal(radiusKernel,dist) ;
+                    p.density += (1 - distKernal / radius) / restDensity;
                 }
             }
             p.pressure = stiffness * (p.density - restDensity);
@@ -101,7 +123,8 @@
                     let distSq = dx * dx + dy * dy;
                     if (distSq < radius * radius) {
                         let dist = Math.sqrt(distSq);
-                        let force = (p.pressure + q.pressure) / 2 / dist;
+                        let distKernal = SmoothingKernal(radiusKernel,dist);
+                        let force = (p.pressure + q.pressure) / 2 / distKernal * 1;
                         fx += dx * force;
                         fy += dy * force;
                     }
@@ -126,7 +149,7 @@
     }
 
     function loop() {
-        //computeDensityPressure();
+        computeDensityPressure();
         computeForces();
         updateParticles();
         drawParticles();
