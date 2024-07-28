@@ -23,11 +23,13 @@
     const stiffness = 0.025;
     const stiffnessNear = 0.4;
     
-    const gravity = 2.0;
+    const gravity = 3.0;
     const dt = 0.16
 
     let mouseX = 0;
     let mouseY = 0;
+
+    let streamCount = 0;
 
     const rect = canvas.getBoundingClientRect();
 
@@ -76,6 +78,8 @@
                 this.y = canvas.height - radius;
                // this.vy *= -0.1;
             }
+
+
         }
 
         draw() {
@@ -83,9 +87,14 @@
             ctx.beginPath();
             ctx.arc(this.x, this.y, radiusKernel, 0, Math.PI * 2);
 
-            let R = this.density / 0.01;
+            let R = this.density / 0.005;
+            
+            let distSq = this.vx  * this.vx  + this.vy  * this.vy;
+             let dist = Math.sqrt(distSq);
+           
+            let V = 128 + dist/10 * 256;
 
-            ctx.fillStyle = `rgba(${R},128,${256-R},0.2)`;
+            ctx.fillStyle = `rgba(${R}, ${V}, ${256-R}, 0.1)`;
             ctx.fill();
 
 
@@ -216,7 +225,7 @@
                         let dny = dy / dist;
 
                         //let distKernal = SmoothingKernal(radiusKernel,dist);
-                        let D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * dt * dt * 15.0;
+                        let D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * dt * dt * 50.0;
                                                               
                       
                         partical_B.x += D * dnx * -0.5
@@ -282,16 +291,73 @@
 
     }
 
+    function collisionDraw(){
+        ctx.beginPath();
+             // Очистка канваса и отрисовка прямоугольника
+                // ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.rect(100, 100, 50, 450);
+                ctx.stroke();
+
+                ctx.beginPath();
+             // Очистка канваса и отрисовка прямоугольника
+                // ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.rect(300, 500, 300, 20);
+                ctx.stroke();
+
+    };
+
+    function updateCollision(){
+        for (let i = 0; i < numParticles; i++) {
+            let partical_A = particles[i];
+
+            if( ((partical_A.x + radiusKernel) > 100 && (partical_A.x - radiusKernel) < 100 + 50) 
+                && (partical_A.y + radiusKernel > 100 && (partical_A.y- radiusKernel < 100 + 450))){
+               partical_A.x = partical_A.x_prev;
+               partical_A.y = partical_A.y_prev;
+            }
+
+            if( (partical_A.x + radiusKernel > 300 && partical_A.x- radiusKernel < 300 + 300) 
+                && (partical_A.y + radiusKernel > 500 && (partical_A.y - radiusKernel< 500 + 20))){
+               partical_A.x = partical_A.x_prev;
+               partical_A.y = partical_A.y_prev;
+            }
+        }    
+    }
+
+    function  stream(){
+
+       
+      
+
+       let partical_A = particles[streamCount];
+       partical_A.x = 300;
+       partical_A.y = 10;
+       partical_A.x_prev = 300;
+       partical_A.y_prev = 10;
+       streamCount++ 
+       
+       if(streamCount > numParticles -1){
+          streamCount = 0;
+       }
+
+    }
+
+
     function loop() {
         applyGravity()
         computeDensityPressure();
         computeForces();
         mouseColisions();
+        //stream();
        
         updateParticles();
+        updateCollision();
         computeVelocity();
         drawParticles();
         mouseDraw();
+        collisionDraw();
         requestAnimationFrame(loop);
     }
 
