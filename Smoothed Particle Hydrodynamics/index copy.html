@@ -14,21 +14,38 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const numParticles = 200;
+    const numParticles = 1000;
     const particles = [];
-    const radius = 10;
-    const radiusKernel = 50;
+    const radius = 5;
+    const radiusKernel = 15;
     const restDensity = 100;
     
     const stiffness = 0.025;
     const stiffnessNear = 0.4;
     
-    const gravity = 0.00;
+    const gravity = 2.0;
+    const dt = 0.16
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.addEventListener('mousemove',(e)=>{
+        //console.log(e)
+
+        mouseX = e.clientX - rect.left; 
+        mouseY = e.clientY - rect.top;
+        
+        //console.log(mouseX + ' ' + mouseY)
+    })
 
     class Particle {
         constructor(x, y) {
             this.x = x;
             this.y = y;
+            this.x_prev = x;
+            this.y_prev = y;
             this.vx = 0;
             this.vy = 0;
             this.density = 0;
@@ -39,25 +56,25 @@
         }
 
         update() {
-            this.vx += 0; // Add other forces here
-            this.vy += gravity; // Gravity force
-            this.x += this.vx;
-            this.y += this.vy;
+            // this.vx += 0; // Add other forces here
+            // this.vy += gravity; // Gravity force
+            // this.x += this.vx;
+            // this.y += this.vy;
 
             // Boundary conditions
             if (this.x < radius) {
-                this.x = radius + 0.1;
-                this.vx *= -0.1;
+                this.x = radius;
+                //this.vx *= -0.1;
             } else if (this.x > canvas.width - radius) {
                 this.x = canvas.width - radius;
-                this.vx *= -0.1;
+               // this.vx *= -0.1;
             }
             if (this.y < radius) {
                 this.y = radius;
-                this.vy *= -0.1;
+               // this.vy *= -0.1;
             } else if (this.y > canvas.height - radius) {
                 this.y = canvas.height - radius;
-                this.vy *= -0.1;
+               // this.vy *= -0.1;
             }
         }
 
@@ -98,6 +115,38 @@
             const y = Math.random() * canvas.height * 0.5 + (canvas.height * 0.25);
             particles.push(new Particle(x, y));
         }
+    }
+
+    function applyGravity(){
+        for (let i = 0; i < numParticles; i++) {
+            let partical_A = particles[i];
+
+            partical_A.vy = partical_A.vy + gravity * dt;
+
+        }    
+
+        for (let i = 0; i < numParticles; i++) {
+            let partical_A = particles[i];
+
+            partical_A.x_prev = partical_A.x;
+            partical_A.y_prev = partical_A.y;
+
+            partical_A.x = partical_A.x +  partical_A.vx * dt;
+            partical_A.y = partical_A.y +  partical_A.vy * dt;
+
+        }
+
+        
+    }
+
+    function computeVelocity() {
+        for (let i = 0; i < numParticles; i++) {
+            let partical_A = particles[i];
+
+            partical_A.vx = (partical_A.x - partical_A.x_prev)/dt;
+            partical_A.vy = (partical_A.y - partical_A.y_prev)/dt;
+
+        }  
     }
 
     function computeDensityPressure() {
@@ -167,7 +216,7 @@
                         let dny = dy / dist;
 
                         //let distKernal = SmoothingKernal(radiusKernel,dist);
-                        let D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * 0.25 * 0.25 * 100.0;
+                        let D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * dt * dt * 15.0;
                                                               
                       
                         partical_B.x += D * dnx * -0.5
@@ -201,11 +250,48 @@
         }
     }
 
+    function mouseColisions() {
+
+        for (let i = 0; i < numParticles; i++) {
+            let partical_A = particles[i];
+
+            let dx = partical_A.x - mouseX;
+            let dy = partical_A.y - mouseY;
+            let distSq = dx * dx + dy * dy;
+            let dist = Math.sqrt(distSq);
+
+            if(dist < 50){
+                
+                let dnx = dx / dist;
+                let dny = dy / dist;
+
+                partical_A.x +=  dnx * 0.5
+                partical_A.y +=  dny * 0.5
+            }
+
+        }    
+
+    }
+
+    function mouseDraw(params) {
+        ctx.beginPath();
+            ctx.arc(mouseX, mouseY, 25, 0, Math.PI * 2);
+        
+            ctx.fillStyle = `rgba(128,256,128,0.9)`;
+            ctx.fill();
+
+    }
+
     function loop() {
+        applyGravity()
         computeDensityPressure();
         computeForces();
+        mouseColisions();
+       
         updateParticles();
+        computeVelocity();
         drawParticles();
+        mouseDraw();
         requestAnimationFrame(loop);
     }
 
