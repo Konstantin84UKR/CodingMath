@@ -96,12 +96,12 @@ function main() {
     canvas.height = 500;
     const ctx = canvas.getContext('2d');
 
-    const simMinWidth = 1.0;
+    const simMinWidth = 4.0;
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
 	const tablScale = 10;
-	const numBalls = 100;
+	const numBalls = 500;
 	const radiusBall = 0.02;
 
     function cX(pos) {

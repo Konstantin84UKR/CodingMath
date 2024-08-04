@@ -14,16 +14,16 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    const numParticles = 2000;
+    const numParticles = 1000;
     const particles = [];
     const radius = 5;
-    const radiusKernel = 10;
+    const radiusKernel = 15;
     const restDensity = 100;
     
     const stiffness = 0.025;
     const stiffnessNear = 0.4;
     
-    const gravity = 2.1;
+    const gravity = 4.0;
     const dt = 0.16
 
     let mouseX = 0;
@@ -50,6 +50,7 @@
             this.y_prev = y;
             this.vx = 0;
             this.vy = 0;
+          
             this.density = 0;
             this.pressure = 0;
 
@@ -95,11 +96,13 @@
             let V = 128 + dist/10 * 256;
 
             ctx.fillStyle = `rgba(${R}, ${V}, ${256-R}, 0.1)`;
+            //ctx.fillStyle = `rgba(50,128, 256, 0.5)`;
             ctx.fill();
 
 
             ctx.beginPath();
             ctx.arc(this.x, this.y, radius, 0, Math.PI * 2);
+           // ctx.fillStyle = `rgba(${R},128,${256-R},0.5)`;
             ctx.fillStyle = `rgba(${R},128,${256-R},0.5)`;
             ctx.fill();
         }
@@ -350,7 +353,7 @@
         computeDensityPressure();
         computeForces();
         mouseColisions();
-        //stream();
+        // //stream();
        
         updateParticles();
         updateCollision();
