@@ -3,7 +3,7 @@ export class Simulation{
         this.ctx = canvas.getContext('2d');
     }
     update(dt){
-        console.log('Simulation update');
+       // console.log('Simulation update');
     }
 
     draw(){

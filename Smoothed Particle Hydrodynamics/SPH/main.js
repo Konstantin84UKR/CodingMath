@@ -2,6 +2,7 @@ import { vec2 } from '../../common/wgpu-matrix.module.js';
 //import { HashTable } from './HashTable.js';
 import { HashWithMap as HashTable } from './HashWithMap.js';
 import { Particle } from './Particle.js';
+import { Vector2 } from './V.js';
 
 
 function main() {
@@ -18,17 +19,12 @@ function main() {
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
 	const tablScale = 20;
-<<<<<<< HEAD
+
 	const numBalls = 1000;
 	const radiusBall = 0.02;
 
 	const radiusKernel = 0.04;
-=======
-	const numBalls = 2048;
-	const radiusBall = 0.02;
 
-	const radiusKernel = 0.06;
->>>>>>> 89e12cba02116614a4d32a1fca0234ad817bca43
 	const radiusKernelSq = radiusKernel * radiusKernel;
 
 	const stiffness = 2.0;

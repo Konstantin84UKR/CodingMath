@@ -1,6 +1,8 @@
 
 import { Simulation } from "./Simulation.js";
 import { Playground } from "./Playground.js";
+import { Vector2 } from "./Vector2.js";
+import { DrawUtils } from "./DrawUtils.js";
 
 
 function main(){
@@ -39,7 +41,7 @@ function main(){
 
     canvas.addEventListener('mousemove', function(e){
         let mouse = getMousePos(canvas,e);
-        playground.onMouseMove(mouse.x, mouse.y);
+        playground.onMouseMove(new Vector2(mouse.x, mouse.y));
     }, false );
 
     canvas.addEventListener('mousedown', function(e){
