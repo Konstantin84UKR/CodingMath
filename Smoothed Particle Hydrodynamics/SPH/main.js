@@ -18,16 +18,23 @@ function main() {
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
 	const tablScale = 20;
+<<<<<<< HEAD
 	const numBalls = 1000;
 	const radiusBall = 0.02;
 
 	const radiusKernel = 0.04;
+=======
+	const numBalls = 2048;
+	const radiusBall = 0.02;
+
+	const radiusKernel = 0.06;
+>>>>>>> 89e12cba02116614a4d32a1fca0234ad817bca43
 	const radiusKernelSq = radiusKernel * radiusKernel;
 
-	const stiffness = 3.0;
-	const stiffnessNear = 4.0;
+	const stiffness = 2.0;
+	const stiffnessNear = 3.0;
 
-	const restDensity = 20;
+	const restDensity = 30;
 
 	const mouseCoord = vec2.create();
 	const rect = canvas.getBoundingClientRect();
@@ -218,13 +225,13 @@ function main() {
 	function mouseColisions() {
 
         for (let i = 0; i < physicsScene.balls.length; i++) {
-            let partical_A = physicsScene.balls[i];
+            const partical_A = physicsScene.balls[i];
 			
-			let dir = vec2.sub(partical_A.pos,drawingToPhysics(mouseCoord));
-			let dist = vec2.length(dir);
+			const dir = vec2.sub(partical_A.pos,drawingToPhysics(mouseCoord));
+			const dist = vec2.length(dir);
             
 			if(dist < 0.2){
-                let dirNormal = vec2.scale(vec2.normalize(dir),0.005);
+                const dirNormal = vec2.scale(vec2.normalize(dir),0.005);
                 vec2.add(partical_A.pos, dirNormal, partical_A.pos);                
             }
 
@@ -235,7 +242,7 @@ function main() {
 	function computeColision(){
 	
 		for (let i = 0; i < physicsScene.balls.length; i++) {
-			let partical_A = physicsScene.balls[i];
+			const partical_A = physicsScene.balls[i];
 			handleWallCollision(partical_A, physicsScene.worldSize);		
 		}
 		mouseColisions();
@@ -248,7 +255,7 @@ function main() {
 		
 		for (let i = 0; i < numBalls; i++) {
             //applyGravity
-			let partical_A = physicsScene.balls[i];
+			const partical_A = physicsScene.balls[i];
 			vec2.add(partical_A.vel, vec2.scale(physicsScene.gravity,physicsScene.dt), partical_A.vel);
 
 			// //setPrevPos
@@ -260,7 +267,7 @@ function main() {
 
 	function applyVel(){
 		for (let i = 0; i < numBalls; i++) {
-            let partical_A = physicsScene.balls[i];
+            const partical_A = physicsScene.balls[i];
 			//setPrevPos
             partical_A.posPrev = vec2.clone(partical_A.pos);
 			partical_A.pos = vec2.add(partical_A.pos, vec2.scale(partical_A.vel,physicsScene.dt)); 
@@ -271,12 +278,12 @@ function main() {
 	function computeDensityPressure() {
       
         for (let i = 0; i < numBalls; i++) {
-            let partical_A= physicsScene.balls[i];
+            const partical_A= physicsScene.balls[i];
           
             
             partical_A.density = 0;
             partical_A.densityNear = 0;
-			let BallsForTestCollision = findNeibors(partical_A);
+			const BallsForTestCollision = findNeibors(partical_A);
 			
 			for (let j = 0; j < BallsForTestCollision.length; j++) {
                 let partical_B = BallsForTestCollision[j];				
@@ -289,12 +296,14 @@ function main() {
 				// let dist = vec2.distance(partical_B.pos, partical_A.pos)
                 // let Q = dist / radiusKernel;
 				
-				let dist = vec2.distanceSq(partical_B.pos, partical_A.pos);
-				let Q = dist / (radiusKernelSq);
-
+				const dist = vec2.distanceSq(partical_B.pos, partical_A.pos);
+				const Q = dist / (radiusKernelSq);
+				const invertQ = (1 - Q )
                 if (1 > Q ) {
-                   partical_A.density +=  Math.pow((1 - Q ),2);
-                   partical_A.densityNear +=  Math.pow((1 - Q ),3);
+					
+				   const paw2 =	Math.pow(invertQ,2)	
+                   partical_A.density +=  paw2;//Math.pow((1 - Q ),2);
+                   partical_A.densityNear +=  paw2 + invertQ;//Math.pow((1 - Q ),3);
                 }
             }
             partical_A.pressure = stiffness * (partical_A.density - restDensity);
@@ -306,15 +315,15 @@ function main() {
        
         for (let i = 0; i < numBalls; i++) {
            
-            let partical_A = physicsScene.balls[i];
+            const partical_A = physicsScene.balls[i];
 
-			let BallsForTestCollision = findNeibors(partical_A);
+			const BallsForTestCollision = findNeibors(partical_A);
           
 			let F = vec2.create();
 
             for (let j = 0; j < BallsForTestCollision.length; j++) {
                
-                    let partical_B = BallsForTestCollision[j];
+                    const partical_B = BallsForTestCollision[j];
 
                     if(partical_B === partical_A){
                         continue;
@@ -323,14 +332,14 @@ function main() {
                     //let deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);				                   
 					//let dist = vec2.distance(partical_B.pos, partical_A.pos);
 
-					let dist = vec2.distanceSq(partical_B.pos, partical_A.pos);
-					let Q = dist / (radiusKernelSq);
+					const dist = vec2.distanceSq(partical_B.pos, partical_A.pos);
+					const Q = dist / (radiusKernelSq);
                     
                     if (1 > Q ) {
                                       
-                        let deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);		
-						let deltaNormalXY = vec2.normalize(deltaXY);                        
-                        let D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * physicsScene.dt * physicsScene.dt * 0.99;
+                        const deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);		
+						const deltaNormalXY = vec2.normalize(deltaXY);                        
+                        const D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * physicsScene.dt * physicsScene.dt * 0.99;
                         
 						partical_B.pos = vec2.add(partical_B.pos , vec2.scale(deltaNormalXY, D * -0.5));
                         F = vec2.add(F,vec2.scale(deltaNormalXY, -D * -0.5));
@@ -354,7 +363,7 @@ function main() {
 
 	function computeVelocity() {
         for (let i = 0; i < numBalls; i++) {
-            let partical_A = physicsScene.balls[i];
+            const partical_A = physicsScene.balls[i];
           
 			let vel = vec2.subtract(partical_A.pos, partical_A.posPrev);
 			partical_A.vel =  vec2.scale(vel,1/physicsScene.dt);
@@ -364,32 +373,32 @@ function main() {
 	
 	function springDisplacements() {
 		for (let i = 0; i < numBalls; i++) {
-            let partical_A= physicsScene.balls[i];
+            const partical_A= physicsScene.balls[i];
           
             
             partical_A.density = 0;
             partical_A.densityNear = 0;
-			let BallsForTestCollision = findNeibors(partical_A);
+			const BallsForTestCollision = findNeibors(partical_A);
 			let F = vec2.create();
 
 			for (let j = 0; j < BallsForTestCollision.length; j++) {
-                let partical_B = BallsForTestCollision[j];				
+                const partical_B = BallsForTestCollision[j];				
             
                 if(partical_A === partical_B){
                     continue;
                 }
 				
-				let distSq = vec2.distanceSq(partical_B.pos, partical_A.pos);
-				let Q = distSq / (radiusKernelSq);
+				const distSq = vec2.distanceSq(partical_B.pos, partical_A.pos);
+				const Q = distSq / (radiusKernelSq);
 				
 				if (1 > Q ) {
 					
-					let deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);		
-					let deltaNormalXY = vec2.normalize(deltaXY); 
-					let dist = vec2.distance(partical_B.pos, partical_A.pos);
+					const deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);		
+					const deltaNormalXY = vec2.normalize(deltaXY); 
+					const dist = vec2.distance(partical_B.pos, partical_A.pos);
 				
-					let k = 0.9;
-					let D =  physicsScene.dt * physicsScene.dt * k * (1-Q) * (dist - 0);
+					const k = 0.9;
+					const D =  physicsScene.dt * physicsScene.dt * k * (1-Q) * (dist - 0);
 					
 					partical_B.pos = vec2.add(partical_B.pos , vec2.scale(deltaNormalXY, D * -0.5));
 					F = vec2.add(F,vec2.scale(deltaNormalXY, -D * -0.5));
