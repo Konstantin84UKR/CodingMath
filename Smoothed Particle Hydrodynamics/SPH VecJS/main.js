@@ -1,4 +1,5 @@
 import { vec2 } from '../../common/wgpu-matrix.module.js';
+import { Vector2 } from './Vector2.js';
 //import { HashTable } from './HashTable.js';
 import { HashWithMap as HashTable } from './HashWithMap.js';
 import { Particle } from './Particle.js';
@@ -29,7 +30,7 @@ function main() {
 
 	const restDensity = 20;
 
-	const mouseCoord = vec2.create();
+	const mouseCoord = new Vector2();
 	const rect = canvas.getBoundingClientRect();
 
     function cX(pos) {
@@ -58,9 +59,9 @@ function main() {
     // Scene ---------------------------------------
     let physicsScene = 
 	{
-		gravity : vec2.create(0, -1.0),
+		gravity : new Vector2(0,-1),
 		dt : 1.0 / 60.0,
-		worldSize :vec2.create(simWidth,simHeight),
+		worldSize :new Vector2(simWidth,simHeight),
 		paused: true,
 		balls: [],				
 		restitution : .95
@@ -74,8 +75,8 @@ function main() {
             const radius = radiusBall //+ Math.random() * 0.01;
             const mass = Math.PI * radius * radius;
             
-            const pos = vec2.create((Math.random() + 0.2) * simWidth * 0.5,(Math.random() + 0.5) * simHeight* 0.3);//   new Vector2(Math.random() * simWidth, Math.random() * simHeight);
-		   	const vel = vec2.create(); 
+            const pos = new Vector2((Math.random() + 0.2) * simWidth * 0.5,(Math.random() + 0.5) * simHeight* 0.3);//   new Vector2(Math.random() * simWidth, Math.random() * simHeight);
+		   	const vel = new Vector2(); 
             const id = i;
             physicsScene.balls.push(new Particle(radius, mass, pos, vel,id ));
             
@@ -220,8 +221,9 @@ function main() {
         for (let i = 0; i < physicsScene.balls.length; i++) {
             let partical_A = physicsScene.balls[i];
 			
-			let dir = vec2.sub(partical_A.pos,drawingToPhysics(mouseCoord));
-			let dist = vec2.length(dir);
+			let dir = new Vector2();
+			dir = dir.subtractVectors(partical_A.pos, drawingToPhysics(mouseCoord));
+			let dist = dir.length();
             
 			if(dist < 0.2){
                 let dirNormal = vec2.scale(vec2.normalize(dir),0.005);
