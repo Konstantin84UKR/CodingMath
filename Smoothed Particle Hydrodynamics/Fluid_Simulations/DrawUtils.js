@@ -1,3 +1,5 @@
+import { Vector2 } from "./Vector2.js";
+
 export class DrawUtils{
     constructor(){
 
@@ -42,5 +44,13 @@ export class DrawUtils{
         ctx.font = size+"px Arial";
         ctx.fillStyle = color;
         ctx.fillText(text,position.x,position.y);
+    }
+
+    static Cleare(ctx,canvas, color){
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.rect(0, 0 , canvas.width, canvas.height);
+        ctx.fill();
+        ctx.closePath();
     }
 }

@@ -8,6 +8,7 @@ import { DrawUtils } from "./DrawUtils.js";
 function main(){
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const color =  '#343434';
 
     let lastTime = performance.now();
     let currentTime = 0;
@@ -18,6 +19,8 @@ function main(){
     mainLoop();
 
     function updatePlayground(dt){
+        DrawUtils.Cleare(ctx,canvas,color);       
+
         playground.update(dt);
         playground.draw();
     }

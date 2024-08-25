@@ -2,7 +2,7 @@ import { vec2 } from '../../common/wgpu-matrix.module.js';
 //import { HashTable } from './HashTable.js';
 import { HashWithMap as HashTable } from './HashWithMap.js';
 import { Particle } from './Particle.js';
-import { Vector2 } from './V.js';
+
 
 
 function main() {
