@@ -20,17 +20,17 @@ function main() {
     const simHeight = canvas.height / cScale;
 	const tablScale = 20;
 
-	const numBalls = 1000;
+	const numBalls = 2000;
 	const radiusBall = 0.02;
 
 	const radiusKernel = 0.04;
 
 	const radiusKernelSq = radiusKernel * radiusKernel;
 
-	const stiffness = 2.0;
-	const stiffnessNear = 3.0;
+	const stiffness = 0.07;
+	const stiffnessNear = 0.03;
 
-	const restDensity = 30;
+	const restDensity = 1000;
 
 	const mouseCoord = vec2.create();
 	const rect = canvas.getBoundingClientRect();
@@ -98,7 +98,7 @@ function main() {
     // Drawing -------------------------------------
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-		drawGrid()
+		//drawGrid()
         //ctx.fillStyle = "#ff8855";
 
         for (let i = 0; i < physicsScene.balls.length; i++) {
@@ -115,6 +115,7 @@ function main() {
 				ctx.fillStyle = ball.fillStyle;
 			}else{
 				ctx.fillStyle = `rgba(${R + V},${128 + V},${256 - R + V},1.0)`;
+				//ctx.fillStyle = "#2288ff";
 			}
            
 			
@@ -227,7 +228,7 @@ function main() {
 			const dist = vec2.length(dir);
             
 			if(dist < 0.2){
-                const dirNormal = vec2.scale(vec2.normalize(dir),0.005);
+                const dirNormal = vec2.scale(vec2.normalize(dir),0.003);
                 vec2.add(partical_A.pos, dirNormal, partical_A.pos);                
             }
 
@@ -332,13 +333,15 @@ function main() {
 					const Q = dist / (radiusKernelSq);
                     
                     if (1 > Q ) {
+
+						const invertQ = (1 - Q );
                                       
                         const deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);		
 						const deltaNormalXY = vec2.normalize(deltaXY);                        
-                        const D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * physicsScene.dt * physicsScene.dt * 0.99;
+                        const D = (partical_A.pressure * (invertQ ) + partical_A.pressureNear * Math.pow((invertQ ),2)) * physicsScene.dt * physicsScene.dt * 0.99;
                         
-						partical_B.pos = vec2.add(partical_B.pos , vec2.scale(deltaNormalXY, D * -0.5));
-                        F = vec2.add(F,vec2.scale(deltaNormalXY, -D * -0.5));
+						partical_B.pos = vec2.add(partical_B.pos , vec2.scale(deltaNormalXY, -D * 0.5));
+                        F = vec2.add(F,vec2.scale(deltaNormalXY, D * 0.5));
 
 						// if(partical_A.marker){
 						// 	partical_B.fillStyle = "#ffff55";
@@ -392,12 +395,13 @@ function main() {
 					const deltaXY = vec2.subtract(partical_B.pos,partical_A.pos);		
 					const deltaNormalXY = vec2.normalize(deltaXY); 
 					const dist = vec2.distance(partical_B.pos, partical_A.pos);
-				
+					const invertQ = (1 - Q );
+
 					const k = 0.9;
-					const D =  physicsScene.dt * physicsScene.dt * k * (1-Q) * (dist - 0);
+					const D =  physicsScene.dt * physicsScene.dt * k * (invertQ) * (dist - 0);
 					
-					partical_B.pos = vec2.add(partical_B.pos , vec2.scale(deltaNormalXY, D * -0.5));
-					F = vec2.add(F,vec2.scale(deltaNormalXY, -D * -0.5));
+					partical_B.pos = vec2.add(partical_B.pos , vec2.scale(deltaNormalXY, D * 0.5));
+					F = vec2.add(F,vec2.scale(deltaNormalXY, -D * 0.5));
 				}											
             } 			
 			partical_A.pos = vec2.add(partical_A.pos,F);

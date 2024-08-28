@@ -14,15 +14,7 @@ export class Playground{
     }
 
     draw(){
-        this.simulation.draw();  
-        
-        // DrawUtils.drawLine(this.simulation.ctx, new Vector2(0,0), new Vector2(100,100), 'blue', 10);
-        // DrawUtils.drawLine(this.simulation.ctx, new Vector2(0,0), new Vector2(100,210), "red", 10);
-        // DrawUtils.drawPoint(this.simulation.ctx, new Vector2(100,100), 20 , "green");
-        // DrawUtils.strokePoint(this.simulation.ctx, new Vector2(100,100), 22 , "blue");
-        // DrawUtils.drawRect(this.simulation.ctx, new Vector2(100,100),  new Vector2(50,50) , "blue");
-
-        // DrawUtils.drawText(this.simulation.ctx, new Vector2(100,100), 20 , "White" , "Hello");
+        this.simulation.draw();         
     }
 
     onMouseMove(position){

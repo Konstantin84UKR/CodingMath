@@ -21,7 +21,7 @@ function main(){
     function updatePlayground(dt){
         DrawUtils.Cleare(ctx,canvas,color);       
 
-        playground.update(dt);
+        playground.update(0.3);
         playground.draw();
     }
 
