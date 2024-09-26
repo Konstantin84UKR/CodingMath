@@ -6,11 +6,11 @@ function main() {
     
     /** @type {HTMLCanvasElement} */
     const canvas = document.getElementById("canvas");
-    canvas.width = 800;
-    canvas.height = 800;
+    canvas.width = 500;
+    canvas.height = 500;
     const ctx = canvas.getContext('2d');
 
-    const simMinWidth = 3.0;
+    const simMinWidth = 4.0;
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
@@ -100,11 +100,11 @@ function main() {
 
     function setupScene(){
         physicsScene.balls = [];
-        const numBalls = 1000;
+        const numBalls = 5000;
             
         for (let i = 0; i < numBalls; i++) {
            
-            const radius = 0.01 + Math.random() * 0.01;
+            const radius = 0.01// + Math.random() * 0.01;
             const mass = radius;//Math.PI * radius * radius;
             
             const pos = new Vector2(Math.random() * simWidth, Math.random() * simHeight);

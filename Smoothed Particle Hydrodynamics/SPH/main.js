@@ -10,24 +10,24 @@ function main() {
     
     /** @type {HTMLCanvasElement} */
     const canvas = document.getElementById("canvas");
-    canvas.width = 500;
+    canvas.width = 800;
     canvas.height = 500;
     const ctx = canvas.getContext('2d');
 
-    const simMinWidth = 3.0;
+    const simMinWidth = 2.0;
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
 	const tablScale = 20;
 
 	const numBalls = 2000;
-	const radiusBall = 0.02;
+	const radiusBall = 0.01;
 
 	const radiusKernel = 0.04;
 
 	const radiusKernelSq = radiusKernel * radiusKernel;
 
-	const stiffness = 0.07;
+	const stiffness = 0.05;
 	const stiffnessNear = 0.03;
 
 	const restDensity = 1000;
@@ -105,8 +105,8 @@ function main() {
             const ball = physicsScene.balls[i];
 			ctx.fillStyle = ball.fillStyle;
 			
-			let R = ball.density / 0.005;
-			let V = Math.abs((ball.vel[0] +  ball.vel[1]) / 0.01);
+			let R = ball.density / 0.002;
+			let V = Math.abs((ball.vel[0] +  ball.vel[1]) * 256) ;
 		//	ctx.fillStyle = `rgba(${R},128,${256-R},1.0)`;
 			
 			if(ball.marker){

@@ -85,17 +85,17 @@ function main() {
     
     /** @type {HTMLCanvasElement} */
     const canvas = document.getElementById("canvas");
-    canvas.width = 800;
-    canvas.height = 800;
+    canvas.width = 500;
+    canvas.height = 500;
     const ctx = canvas.getContext('2d');
 
     const simMinWidth = 3.0;
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;
-	const tablScale = 20;
+	const tablScale = 10;
 	const numBalls = 5000;
-	const radiusBall = 0.01;
+	const radiusBall = 0.01; 
 
     function cX(pos) {
         return pos.x * cScale;

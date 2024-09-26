@@ -5,7 +5,7 @@ export class Particle{
         this.position = position;
         this.prevPosition = position;
         this.velosity = new Vector2(0,0);
-        this.size = 6;
+        this.size = 3;
     }
 
 }

@@ -31,7 +31,9 @@ export class FluidHashGrid{
     }
 
     cellIndexToHash(x,y){
-        let hash = (x* this.p1Prime ^ y * this.p2Prime)% this.hashMapSize;
+        //let hash = (x* this.p1Prime ^ y * this.p2Prime)% this.hashMapSize;
+
+        let hash = "" + x % this.hashMapSize  + "_"+ y % this.hashMapSize;
         return hash;
     }
 
@@ -76,10 +78,10 @@ export class FluidHashGrid{
             let entries = this.hashMap.get(hash);
            
             if(entries == null){
-                let newArray = [this.particles[i]];
+                let newArray = [i];
                 this.hashMap.set(hash,newArray);
             }else{
-                entries.push(this.particles[i]);
+                entries.push(i);
             }
 
         }

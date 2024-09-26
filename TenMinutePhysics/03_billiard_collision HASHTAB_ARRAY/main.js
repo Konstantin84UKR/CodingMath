@@ -96,7 +96,7 @@ function main() {
     canvas.height = 800;
     const ctx = canvas.getContext('2d');
 
-    const simMinWidth = 3.0;
+    const simMinWidth = 4.0;
     const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
     const simWidth = canvas.width / cScale;
     const simHeight = canvas.height / cScale;

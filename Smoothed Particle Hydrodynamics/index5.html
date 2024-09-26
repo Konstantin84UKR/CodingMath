@@ -150,7 +150,41 @@
 
         
     }
+    
+    function viscosity(){
+        for (let i = 0; i < numParticles; i++) {
+           let partical_A = particles[i];
+          
+          // let neigbours = this.fluidHashGrid.getNeighbourOfParticleIdx(i);
+          // let particleA = this.particles[i];
+           
+           for (let j = 0; j < neigbours.length; j++) {
+                let particleB = neigbours[j];
+                if(particleA == particleB) {continue};
 
+                let rij = Vector2.Sub(particleB.position , particleA.position);
+                let velosityA = particleA.velosity;
+                let velosityB = particleB.velosity;
+                let q = rij.Length()/ this.INTERACTION_RADIUS;
+
+                if(q < 1){
+                    rij.Normalize();
+                    let u = Vector2.Sub(velosityA,velosityB).Dot(rij);
+
+                    if(u > 0){
+                        let ITerm = dt * (1-q) * (this.SIGMA * u + this.BETA  * u * u);
+                        let I = Vector2.Scale(rij, ITerm);
+
+                        particleA.velosity = Vector2.Sub(particleA.velosity, Vector2.Scale(I, 0.5));
+                        particleB.velosity = Vector2.Add(particleB.velosity, Vector2.Scale(I, 0.5));
+                    }
+
+                }
+
+           }
+        }
+    }
+    
     function computeVelocity() {
         for (let i = 0; i < numParticles; i++) {
             let partical_A = particles[i];
@@ -231,11 +265,11 @@
                         let D = (partical_A.pressure * (1 - Q ) + partical_A.pressureNear * Math.pow((1 - Q ),2)) * dt * dt * 50.0;
                                                               
                       
-                        partical_B.x += D * dnx * -0.5
-                        partical_B.y += D * dny * -0.5
+                        partical_B.x -= D * dnx * 0.5
+                        partical_B.y -= D * dny * 0.5
                       
-                        fx -= dnx * D * -0.5;
-                        fy -= dny * D * -0.5;
+                        fx += dnx * D * 0.5;
+                        fy += dny * D * 0.5;
 
                     }
 
@@ -350,10 +384,11 @@
 
     function loop() {
         applyGravity()
+       // viscosity();
         computeDensityPressure();
         computeForces();
         mouseColisions();
-        // //stream();
+        //stream();
        
         updateParticles();
         updateCollision();

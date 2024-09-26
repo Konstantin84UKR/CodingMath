@@ -6,7 +6,7 @@ export class Playground{
     constructor(canvas){
         this.simulation = new Simulation(canvas);
         this.canvas = canvas;
-        this.mousePos = this.simulation.particles[0].position;
+        this.mousePos = Vector2.Zero();//this.simulation.particles[0].position;
     }
 
     update(dt){
