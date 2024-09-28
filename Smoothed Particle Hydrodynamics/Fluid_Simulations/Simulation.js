@@ -4,6 +4,8 @@ import { DrawUtils } from './DrawUtils.js'
 import { FluidHashGrid } from './FluidHashGrid.js';
 import { ParticleEmitter } from './ParticleEmitter.js';
 import { Spring } from './Spring.js';
+import { Circle } from "./shapes/Circle.js";
+import { Polygon } from "./shapes/Polygon.js";
 
 export class Simulation{
     constructor(canvas){
@@ -12,6 +14,7 @@ export class Simulation{
         this.particles = [];
         this.particleEmitters = [];
         this.springs = new Map();
+        this.shapes = [];
       
         this.AMOUNT_PARTICLES = 1000;
         this.VELOCITY_DAMPING = 1.0;
@@ -25,8 +28,8 @@ export class Simulation{
         this.BETA = 0.05;
 
         this.GAMMA = 0.1;
-        this.PLASTICITY = 5.7;
-        this.SPRING_STIFFNESS = 1.01;
+        this.PLASTICITY = 1.51;
+        this.SPRING_STIFFNESS = 10.01;
         
         this.fluidHashGrid = new FluidHashGrid(25);
         this.instantiateParticles();
@@ -35,18 +38,51 @@ export class Simulation{
         // this.emitter =this.createParticleEmitter(
         //     this.ctx,
         //     new Vector2(canvas.width/2, 400),
-        //     new Vector2(0, -1),
+        //     new Vector2(1, -1),
         //     20,
         //     1,
-        //     10,
-        //     20
+        //     5,
+        //     25
         // );
 
         this.rotate = true;
 
+        let circle = new Circle(this.ctx,new Vector2(200,600), 100, "orange");
+
+        let polygon = new Polygon(this.ctx,[
+            new Vector2(600,600),
+            new Vector2(800,600),
+            new Vector2(600,700),
+            new Vector2(600,700)
+        ],  "orange")
+ 
+        this.shapes.push(circle);
+        this.shapes.push(polygon);
 
     }
+
+    handleOneWayCoupling(){
+        for (let i = 0; i < this.particles.length; i++) {
+           let particle = this.particles[i];
+           for (let j = 0; j < this.shapes.length; j++) {
+                let dir = this.shapes[j].getDirectionOut(particle.position);
+                if(dir != null){
+                    particle.position = Vector2.Add(particle.position, dir);
+                } 
+           }            
+        }
+    }    
     
+    getShapeAt(pos){
+        for (let i = 0; i <  this.shapes.length; i++) {
+            if(this.shapes[i].isPointInside(pos)){
+                return this.shapes[i];
+            }
+        }
+
+        return null;
+    }
+
     createParticleEmitter(ctx, position, direction, size, spawnInterval, amount, velocity){
         let emitter = new ParticleEmitter(ctx, position, direction, size, spawnInterval, amount, velocity);
         this.particleEmitters.push(emitter);
@@ -99,7 +135,10 @@ export class Simulation{
        this.springDisplacement(dt); 
 
        this.doubleDensityRelaxation(dt); // line 16
+       
+       this.handleOneWayCoupling();
        this.worldBoundary();
+       
        this.couputeNextVelocity(dt);// line 18 - 20
     }
 
@@ -327,6 +366,11 @@ export class Simulation{
         for (let i = 0; i < this.particleEmitters.length; i++) {
            this.particleEmitters[i].draw();     
         }
+
+        for (let i = 0; i < this.shapes.length; i++) {
+            this.shapes[i].draw();     
+         }
+
        
     }
 }

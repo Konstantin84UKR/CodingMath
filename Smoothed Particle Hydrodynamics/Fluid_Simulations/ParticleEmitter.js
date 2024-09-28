@@ -38,7 +38,7 @@ export class ParticleEmitter{
                 normalizedDir.Normalize();
 
                 let particle;
-                if(particles.length >=1500){
+                if(particles.length >=2000){
                     // if(this.currentParticleIndex >= 500){
                     //     this.currentParticleIndex = 0;
                     //   }                 

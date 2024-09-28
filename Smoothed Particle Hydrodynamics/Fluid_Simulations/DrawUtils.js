@@ -13,10 +13,10 @@ export class DrawUtils{
         ctx.closePath();
     }
 
-    static strokePoint(ctx, position, radius, color){
+    static strokePoint(ctx, position, radius, color,lineWidth=1){
         ctx.beginPath();
         ctx.arc(position.x, position.y, radius, 0 , Math.PI *2, true);
-        ctx.lineWidth = 1;
+        ctx.lineWidth = lineWidth;
         ctx.strokeStyle  = color;
         ctx.stroke();
         ctx.closePath();
