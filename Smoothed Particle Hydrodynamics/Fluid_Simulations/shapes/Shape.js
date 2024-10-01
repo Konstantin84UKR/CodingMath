@@ -13,6 +13,42 @@ export class Shape{
         }
     }
 
+    getNearestVector(position, affectDistance){
+        
+        let bestNormal = null;
+        let smallest = Number.MAX_VALUE;
+        for (let i = 0; i < this.normals.length; i++) {
+            let vertex = this.vertices[i]; 
+            let nextVertex = this.vertices[(i+1) % this.normals.length]; 
+            let normal  = this.normals[i];
+
+
+            let edge = Vector2.Sub(nextVertex, vertex);
+            let edgeLength = edge.Length();
+            edge.Normalize();
+            let vertexToPartical = Vector2.Sub(position, vertex);
+            let betweenVerticlesDot = vertexToPartical.Dot(edge);
+
+            if(betweenVerticlesDot > 0 && betweenVerticlesDot < edgeLength){
+                let disctanceFromEdge = vertexToPartical.Dot(normal);
+                if(disctanceFromEdge < smallest && disctanceFromEdge > 0 
+                    && disctanceFromEdge < affectDistance){
+                    smallest = disctanceFromEdge;
+                    bestNormal = normal.Copy();    
+                }
+            }
+
+        }   
+
+        if(bestNormal){
+           return Vector2.Scale(bestNormal, smallest);  
+        }else{
+            return null;
+        }
+
+        //return null;
+    }
+
     isPointInside(position){
         let isInside = false;
         for (let i = 0; i < this.vertices.length; i++) {

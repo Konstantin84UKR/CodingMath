@@ -15,6 +15,19 @@ export class Circle extends Shape{
         return distanse < this.radius;
     }
 
+    getNearestVector(position, affectDistance){
+        let direction  = Vector2.Sub(position, this.position);
+        let length = direction.Length();
+        if(length < this.radius + affectDistance){
+            direction.Normalize();
+            direction = Vector2.Scale(direction, this.radius + affectDistance - length);
+            return direction; 
+        }else{
+            return null
+        }
+      
+    }
+
     getDirectionOut(pos){
         let direction = Vector2.Sub(pos, this.position);
         if(direction.Length2() < this.radius * this.radius){

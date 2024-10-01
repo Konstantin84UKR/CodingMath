@@ -28,26 +28,30 @@ export class Simulation{
         this.BETA = 0.05;
 
         this.GAMMA = 0.1;
-        this.PLASTICITY = 1.51;
-        this.SPRING_STIFFNESS = 10.01;
-        
+        this.PLASTICITY = 0.6;
+        this.SPRING_STIFFNESS = 0.1;
+
+        this.MAX_STICKY_DISTANCE = this.INTERACTION_RADIUS;
+        this.K_STICK = 0.2;
+
         this.fluidHashGrid = new FluidHashGrid(25);
         this.instantiateParticles();
         this.fluidHashGrid.initialize(this.particles);
 
-        // this.emitter =this.createParticleEmitter(
-        //     this.ctx,
-        //     new Vector2(canvas.width/2, 400),
-        //     new Vector2(1, -1),
-        //     20,
-        //     1,
-        //     5,
-        //     25
-        // );
+        this.emitter =this.createParticleEmitter(
+            this.ctx,
+            new Vector2(canvas.width/2, 100),
+            new Vector2(0, 1),
+            20,
+            0.5,
+            5,
+            25
+        );
 
         this.rotate = true;
 
-        let circle = new Circle(this.ctx,new Vector2(200,600), 100, "orange");
+        let circle = new Circle(this.ctx,new Vector2(650,400), 100, "orange");
+        let circle2 = new Circle(this.ctx,new Vector2(450,400), 50, "orange");
 
         let polygon = new Polygon(this.ctx,[
             new Vector2(600,600),
@@ -57,9 +61,27 @@ export class Simulation{
         ],  "orange")
  
         this.shapes.push(circle);
+        this.shapes.push(circle2);
         this.shapes.push(polygon);
 
     }
+
+    handleStickyness(dt){
+        for (let i = 0; i < this.particles.length; i++) {
+            let particle = this.particles[i];
+            for (let j = 0; j < this.shapes.length; j++) {
+                let nearstVec = this.shapes[j].getNearestVector(particle.position, this.MAX_STICKY_DISTANCE);
+                if(nearstVec != null && nearstVec.Length2() >= 0){
+                    let disctance = nearstVec.Length();
+                    let stickyTerm = dt * this.K_STICK * disctance * (1- disctance/this.MAX_STICKY_DISTANCE) * -1;
+                    nearstVec.Normalize()
+                    let stikyVector = Vector2.Scale(nearstVec, stickyTerm);
+                    particle.position = Vector2.Add(particle.position,stikyVector);
+                }
+            }
+        }
+    } 
+
 
     handleOneWayCoupling(){
         for (let i = 0; i < this.particles.length; i++) {
@@ -123,7 +145,7 @@ export class Simulation{
                 this.particleEmitters[0].spawn(dt, this.particles);
                 this.emitter.rotate(0.01 * Math.random());  
             }           
-        }
+        }  
 
        this.applyGravity(dt); // line 1 - 3
        this.viscosity(dt);
@@ -131,11 +153,12 @@ export class Simulation{
             
        this.neighbourSearch(mousePos); 
        
-       this.adjustSprings(dt);
-       this.springDisplacement(dt); 
+    //    this.adjustSprings(dt);
+    //    this.springDisplacement(dt); 
 
        this.doubleDensityRelaxation(dt); // line 16
-       
+      
+       this.handleStickyness(dt);
        this.handleOneWayCoupling();
        this.worldBoundary();
        

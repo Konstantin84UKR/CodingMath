@@ -39,12 +39,12 @@ export class ParticleEmitter{
 
                 let particle;
                 if(particles.length >=2000){
-                    // if(this.currentParticleIndex >= 500){
-                    //     this.currentParticleIndex = 0;
-                    //   }                 
-                    // particle = particles[++this.currentParticleIndex];
-                    // particle.position = position;
-                    // particle.velosity = Vector2.Scale(normalizedDir, this.velocity);;
+                    if(this.currentParticleIndex >= 500){
+                        this.currentParticleIndex = 0;
+                      }                 
+                    particle = particles[++this.currentParticleIndex];
+                    particle.position = position;
+                    particle.velosity = Vector2.Scale(normalizedDir, this.velocity);;
                  
                 }else{
                    particle = new Particle(position);                    
