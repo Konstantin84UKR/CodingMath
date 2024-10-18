@@ -39,7 +39,7 @@ export class ParticleEmitter{
 
                 let particle;
                 if(particles.length >=2000){
-                    if(this.currentParticleIndex >= 500){
+                    if(this.currentParticleIndex >= 2000){
                         this.currentParticleIndex = 0;
                       }                 
                     particle = particles[++this.currentParticleIndex];

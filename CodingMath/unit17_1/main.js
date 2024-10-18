@@ -62,60 +62,71 @@ particleD.friction = 0.9;
 
 const springLength = 200;
 
-canvas.addEventListener("mousemove", function (e) {
+let particleMouse = null;
+let particleSelect = null;
+
+
+
+canvas.addEventListener("mousedown", function (e) {
   // springPoint.setX(e.clientX - 15);
   // springPoint.setY(e.clientY - 15);
-
+  Mousedown = true;
   MouseX = e.clientX - radius
   MouseY = e.clientY - radius
 
   let m = { x: MouseX, y: MouseY };
 
   if (Mousedown) {
-    if (particleA.distanceTo(m) <= radius) {
 
-      particleA.x = MouseX;
-      particleA.y = MouseY;
-      particleA.sellect = true
+    particleMouse = new Particle({
+      x: m.x,
+      y: m.y,
+      speed: 0,
+      direction: 10      
+    }); 
+
+
+    if (particleA.distanceTo(m) <= radius) {
+      
+      particleSelect = Object.assign({}, particleA);
+      // particleA.x = MouseX;
+      // particleA.y = MouseY;
+      // particleA.sellect = true
 
     } else if (particleB.distanceTo(m) <= radius) {
-
-      particleB.x = MouseX;
-      particleB.y = MouseY;
-      particleB.sellect = true
+      particleSelect = Object.assign({}, particleB);
+      // particleB.x = MouseX;
+      // particleB.y = MouseY;
+      // particleB.sellect = true
 
     } else if (particleC.distanceTo(m) <= radius) {
-
-      particleC.x = MouseX;
-      particleC.y = MouseY;
-      particleC.sellect = true
+      particleSelect = Object.assign({}, particleC);
+      // particleC.x = MouseX;
+      // particleC.y = MouseY;
+      // particleC.sellect = true
 
     } else if (particleD.distanceTo(m) <= radius) {
-
-      particleD.x = MouseX;
-      particleD.y = MouseY;
-      particleD.sellect = true
+      particleSelect = Object.assign({}, particleD);
+      // particleD.x = MouseX;
+      // particleD.y = MouseY;
+      // particleD.sellect = true
     }
   }
-
+  
 
 })
 
 canvas.addEventListener("mousedown", function (e) {
-
-  Mousedown = true;
-
-
+ // Mousedown = true;
 })
 
 canvas.addEventListener("mouseup", function (e) {
-
-  Mousedown = false;
-
-  particleA.sellect = false
-  particleB.sellect = false
-  particleC.sellect = false
-  particleD.sellect = false
+  //Mousedown = false;
+  //particleSelect = null;
+  // particleA.sellect = false
+  // particleB.sellect = false
+  // particleC.sellect = false
+  // particleD.sellect = false
 
 })
 
@@ -125,6 +136,12 @@ function update() {
 
   ctx.clearRect(0, 0, width, height);
 
+  if(particleMouse != null && particleSelect != null){
+    spring(particleMouse, particleSelect, 1); 
+    particleMouse.update();
+    particleSelect.update();
+  }
+ 
   spring(particleA, particleB, springLength);
   spring(particleB, particleC, springLength);
   spring(particleC, particleA, springLength);
@@ -137,6 +154,7 @@ function update() {
     particleB.update();
     particleC.update();
     particleD.update();
+ 
     
   }
   // particleA.update();
@@ -161,7 +179,6 @@ function update() {
   paintLine(particleD, particleB);
   paintLine(particleD, particleA);
 
-  
 
   requestAnimationFrame(update);
 }

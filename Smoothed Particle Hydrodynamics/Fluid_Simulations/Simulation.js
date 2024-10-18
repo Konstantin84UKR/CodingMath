@@ -28,25 +28,25 @@ export class Simulation{
         this.BETA = 0.05;
 
         this.GAMMA = 0.1;
-        this.PLASTICITY = 0.6;
-        this.SPRING_STIFFNESS = 0.1;
+        this.PLASTICITY = 1.2;
+        this.SPRING_STIFFNESS = 0.5;
 
         this.MAX_STICKY_DISTANCE = this.INTERACTION_RADIUS;
-        this.K_STICK = 0.2;
+        this.K_STICK = 0.05;
 
         this.fluidHashGrid = new FluidHashGrid(25);
         this.instantiateParticles();
         this.fluidHashGrid.initialize(this.particles);
 
-        this.emitter =this.createParticleEmitter(
-            this.ctx,
-            new Vector2(canvas.width/2, 100),
-            new Vector2(0, 1),
-            20,
-            0.5,
-            5,
-            25
-        );
+        // this.emitter =this.createParticleEmitter(
+        //     this.ctx,
+        //     new Vector2(canvas.width/2, 100),
+        //     new Vector2(0, 1),
+        //     20,
+        //     0.5,
+        //     5,
+        //     14
+        // );
 
         this.rotate = true;
 
@@ -54,15 +54,37 @@ export class Simulation{
         let circle2 = new Circle(this.ctx,new Vector2(450,400), 50, "orange");
 
         let polygon = new Polygon(this.ctx,[
-            new Vector2(600,600),
-            new Vector2(800,600),
-            new Vector2(600,700),
-            new Vector2(600,700)
+           
+            new Vector2(40,320),
+            new Vector2(40,300),
+            new Vector2(300,350),
+            new Vector2(300,370),
+          
+            
         ],  "orange")
+
+
+        let polygon1 = new Polygon(this.ctx,[
+           
+            new Vector2(300,320),
+            new Vector2(300,300),
+            new Vector2(600,250),
+            new Vector2(600,270),
+                     
+        ],  "orange")
+
+        // let polygon = new Polygon(this.ctx,[
+        //     new Vector2(600,600),
+        //     new Vector2(800,600),
+        //     new Vector2(600,700),
+        //     new Vector2(600,700),
+        //     new Vector2(500,700)
+        // ],  "orange")
  
         this.shapes.push(circle);
         this.shapes.push(circle2);
         this.shapes.push(polygon);
+        this.shapes.push(polygon1);
 
     }
 
@@ -143,12 +165,12 @@ export class Simulation{
         if(this.rotate){
             if(this.particleEmitters.length){
                 this.particleEmitters[0].spawn(dt, this.particles);
-                this.emitter.rotate(0.01 * Math.random());  
+               // this.emitter.rotate(0.01 * Math.random());  
             }           
         }  
 
        this.applyGravity(dt); // line 1 - 3
-       this.viscosity(dt);
+       //this.viscosity(dt);
        this.predictPosition(dt);// line 6 - 10
             
        this.neighbourSearch(mousePos); 
@@ -158,8 +180,8 @@ export class Simulation{
 
        this.doubleDensityRelaxation(dt); // line 16
       
-       this.handleStickyness(dt);
-       this.handleOneWayCoupling();
+       //this.handleStickyness(dt);
+      // this.handleOneWayCoupling();
        this.worldBoundary();
        
        this.couputeNextVelocity(dt);// line 18 - 20
@@ -248,20 +270,20 @@ export class Simulation{
                 if(particleA == particleB) {continue};
 
                 let rij = Vector2.Sub(particleB.position , particleA.position);
-                let velosityA = particleA.velosity;
-                let velosityB = particleB.velosity;
+                let velocityA = particleA.velocity;
+                let velocityB = particleB.velocity;
                 let q = rij.Length()/ this.INTERACTION_RADIUS;
 
                 if(q < 1){
                     rij.Normalize();
-                    let u = Vector2.Sub(velosityA,velosityB).Dot(rij);
+                    let u = Vector2.Sub(velocityA,velocityB).Dot(rij);
 
                     if(u > 0){
                         let ITerm = dt * (1-q) * (this.SIGMA * u + this.BETA  * u * u);
                         let I = Vector2.Scale(rij, ITerm);
 
-                        particleA.velosity = Vector2.Sub(particleA.velosity, Vector2.Scale(I, 0.5));
-                        particleB.velosity = Vector2.Add(particleB.velosity, Vector2.Scale(I, 0.5));
+                        particleA.velocity = Vector2.Sub(particleA.velocity, Vector2.Scale(I, 0.5));
+                        particleB.velocity = Vector2.Add(particleB.velocity, Vector2.Scale(I, 0.5));
                     }
 
                 }
@@ -278,19 +300,19 @@ export class Simulation{
              
              if(pos.x < 0 + p.size * 0.5 ){
                 p.position.x = p.size * 0.5; 
-                this.particles[i].velosity.x *= -1; 
+                this.particles[i].velocity.x *= -1; 
              }
              if(pos.y < 0 + p.size * 0.5){
                 p.position.y = p.size * 0.5; 
-                this.particles[i].velosity.y *= -1;
+                this.particles[i].velocity.y *= -1;
              }
              if(pos.x > this.canvas.width - p.size * 0.5){
                 p.position.x = this.canvas.width - p.size * 0.5; 
-                this.particles[i].velosity.x *= -1;
+                this.particles[i].velocity.x *= -1;
              } 
              if(pos.y > this.canvas.height -  p.size * 0.5){
                 p.position.y = this.canvas.height - p.size * 0.5; 
-                this.particles[i].velosity.y *= -1;
+                this.particles[i].velocity.y *= -1;
              }
             
         }
@@ -300,21 +322,21 @@ export class Simulation{
         for (let i = 0; i < this.particles.length; i++) {
           this.particles[i].prevPosotion = this.particles[i].position.Copy();
           this.particles[i].position = Vector2.Add(this.particles[i].position, 
-            Vector2.Scale(this.particles[i].velosity, dt * this.VELOCITY_DAMPING));
+            Vector2.Scale(this.particles[i].velocity, dt * this.VELOCITY_DAMPING));
         }
     }
 
     couputeNextVelocity(dt){
         for (let i = 0; i < this.particles.length; i++) {
            let p = this.particles[i]; 
-           p.velosity = Vector2.Scale(Vector2.Sub(p.position, p.prevPosotion), 1/ dt );           
+           p.velocity = Vector2.Scale(Vector2.Sub(p.position, p.prevPosotion), 1/ dt );           
         }
     }
 
     applyGravity(dt){
         for (let i = 0; i < this.particles.length; i++) {
             let p = this.particles[i]; 
-            p.velosity = Vector2.Add(p.velosity, Vector2.Scale(this.GRAVITY, dt));           
+            p.velocity = Vector2.Add(p.velocity, Vector2.Scale(this.GRAVITY, dt));           
          }
 	}
 
@@ -376,7 +398,7 @@ export class Simulation{
 
         for (let i = 0; i < this.particles.length; i++) {
             let p = this.particles[i];
-            let colorV = p.velosity.Copy();
+            let colorV = p.velocity.Copy();
             let colorI = colorV.Length() * 0.05;
             let R = 255 * colorI;
             let G = 165 + 165 * colorI;

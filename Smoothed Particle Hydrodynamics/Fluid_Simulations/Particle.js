@@ -4,7 +4,7 @@ export class Particle{
     constructor(position){
         this.position = position;
         this.prevPosition = position;
-        this.velosity = new Vector2(0,0);
+        this.velocity = new Vector2(0,0);
         this.size = 3;
     }
 
