@@ -7,8 +7,16 @@ export class Circle extends Shape{
         super(ctx,[new Vector2(position.x,position.y), new Vector2(position.x + radius, position.y)]);
         this.color = color; 
         this.position = position;
-        this.radius = radius;   
-        this.setCentroid(position);          
+        this._radius = radius;   
+        this._centroid = position;          
+    }
+    
+    get radius(){
+        return this._radius;
+    }
+
+    set radius(radius){
+        this._radius = radius;
     }
 
     isPointInside(pos){
@@ -49,6 +57,6 @@ export class Circle extends Shape{
     draw(){
         super.draw(this.ctx);
         DrawUtils.strokePoint(this.ctx, this.position, this.radius, this.color, 1);
-        DrawUtils.drawPoint(this.ctx,this.centroid, 5 , "#ffffff");
+        DrawUtils.drawPoint(this.ctx,this.centroid, 5 , this.color);
     }
 }

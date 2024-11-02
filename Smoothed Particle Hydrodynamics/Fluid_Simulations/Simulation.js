@@ -28,8 +28,8 @@ export class Simulation{
         this.BETA = 0.05;
 
         this.GAMMA = 0.1;
-        this.PLASTICITY = 1.2;
-        this.SPRING_STIFFNESS = 0.5;
+        this.PLASTICITY = 0.0;
+        this.SPRING_STIFFNESS = 0.0;
 
         this.MAX_STICKY_DISTANCE = this.INTERACTION_RADIUS;
         this.K_STICK = 0.05;
@@ -38,19 +38,19 @@ export class Simulation{
         this.instantiateParticles();
         this.fluidHashGrid.initialize(this.particles);
 
-        // this.emitter =this.createParticleEmitter(
-        //     this.ctx,
-        //     new Vector2(canvas.width/2, 100),
-        //     new Vector2(0, 1),
-        //     20,
-        //     0.5,
-        //     5,
-        //     14
-        // );
+        this.emitter =this.createParticleEmitter(
+            this.ctx,
+            new Vector2(canvas.width/2, 100),
+            new Vector2(0, 1),
+            50,
+            1,
+            5,
+            50
+        );
 
         this.rotate = true;
 
-        let circle = new Circle(this.ctx,new Vector2(650,400), 100, "orange");
+        let circle = new Circle(this.ctx,new Vector2(350,550), 100, "orange");
         let circle2 = new Circle(this.ctx,new Vector2(450,400), 50, "orange");
 
         let polygon = new Polygon(this.ctx,[
@@ -165,7 +165,7 @@ export class Simulation{
         if(this.rotate){
             if(this.particleEmitters.length){
                 this.particleEmitters[0].spawn(dt, this.particles);
-               // this.emitter.rotate(0.01 * Math.random());  
+                this.emitter.rotate(0.01 * Math.random());  
             }           
         }  
 
@@ -181,7 +181,11 @@ export class Simulation{
        this.doubleDensityRelaxation(dt); // line 16
       
        this.handleStickyness(dt);
+<<<<<<< HEAD
       this.handleOneWayCoupling();
+=======
+       this.handleOneWayCoupling();
+>>>>>>> a05af0cba562792b274d9989d0ce6227c0911062
        this.worldBoundary();
        
        this.couputeNextVelocity(dt);// line 18 - 20
