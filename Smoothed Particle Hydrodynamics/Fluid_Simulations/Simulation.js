@@ -170,18 +170,18 @@ export class Simulation{
         }  
 
        this.applyGravity(dt); // line 1 - 3
-       //this.viscosity(dt);
+       this.viscosity(dt);
        this.predictPosition(dt);// line 6 - 10
             
        this.neighbourSearch(mousePos); 
        
-    //    this.adjustSprings(dt);
-    //    this.springDisplacement(dt); 
+       this.adjustSprings(dt);
+       this.springDisplacement(dt); 
 
        this.doubleDensityRelaxation(dt); // line 16
       
-       //this.handleStickyness(dt);
-      // this.handleOneWayCoupling();
+       this.handleStickyness(dt);
+      this.handleOneWayCoupling();
        this.worldBoundary();
        
        this.couputeNextVelocity(dt);// line 18 - 20
