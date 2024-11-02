@@ -4,16 +4,19 @@ import { Shape } from "./Shape.js";
 import { MathHelper } from "../MathHelper.js";
 
 export class Polygon extends Shape{
-    constructor(ctx,vertices, color){
+    constructor(ctx,vertices,color){
         super(ctx,vertices);
         this.color = color;
         this.normals = [];
         this.calculateNormals();
         let centroid = MathHelper.calcCentroid(vertices);
-        this.setCentroid(centroid);
+        this._centroid = centroid;
     }
 
     calculateNormals(){
+
+        this.normals = [];
+
         for (let i = 0; i < this.vertices.length-1; i++) {
           let direction = Vector2.Sub(this.vertices[i+1], this.vertices[i]);
           let normal = direction.GetNormal();
@@ -25,6 +28,11 @@ export class Polygon extends Shape{
         let normal = direction.GetNormal();
         normal.Normalize();
         this.normals.push(normal);
+    }
+
+    rotate(radiansDelta){
+        super.rotate(radiansDelta);
+        this.calculateNormals();
     }
 
     draw(){
@@ -44,7 +52,7 @@ export class Polygon extends Shape{
         let end = Vector2.Add(start, Vector2.Scale(this.normals[this.vertices.length-1],normalHelperlength));
         DrawUtils.drawLine(this.ctx,start, end, "orange");
 
-        DrawUtils.drawPoint(this.ctx,this.centroid, 5 , "#ffffff");
+        DrawUtils.drawPoint(this.ctx,this.centroid, 5 , this.color);
 
     }
 }

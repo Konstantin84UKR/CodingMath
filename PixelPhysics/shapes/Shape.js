@@ -1,3 +1,4 @@
+import { MathHelper } from "../MathHelper.js";
 import { Vector2 } from "../Vector2.js";
 import { DrawUtils } from '../utils/DrawUtils.js'
 
@@ -6,6 +7,7 @@ export class Shape{
         this.vertices = vertices;
         this.color = 'green';
         this.ctx = ctx;
+        this._centroid = null;
 
 
         if(new.target === Shape){
@@ -13,8 +15,16 @@ export class Shape{
         }
     }
 
-    setCentroid(position){
-        this.centroid = position;
+    // setCentroid(position){
+    //     this.centroid = position;
+    // }
+    
+    get centroid(){
+       return this._centroid;     
+    }
+    
+    set centroid(v){
+        this._centroid = v;     
     }
 
     getNearestVector(position, affectDistance){
@@ -98,9 +108,18 @@ export class Shape{
     }
  
 
-    moveBy(delta){
+    move(delta){
         for (let i = 0; i < this.vertices.length; i++) {
             this.vertices[i] = Vector2.Add(this.vertices[i], delta);
+        }
+
+        this._centroid.Add(delta);
+    }
+
+    rotate(radiansDelta){
+        for (let i = 0; i < this.vertices.length; i++) {
+            let rotated = MathHelper.rotationAroundpoint(this.vertices[i], this._centroid, radiansDelta);
+            this.vertices[i] = rotated;
         }
     }
 

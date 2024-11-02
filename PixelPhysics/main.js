@@ -69,9 +69,17 @@ function updateSimulation(dt) {
 
 }
 
-function mainLoop() {
-   // window.requestAnimationFrame(mainLoop);  
+function clear(){
+    ctx.fillStyle = "#575757";
+    ctx.fillRect(0,0,canvas.width,canvas.height);	
+}
 
+
+function mainLoop() {
+    window.requestAnimationFrame(mainLoop);  
+
+    //CleanScreen
+    clear();
     //TIME
     currentTime = performance.now();
     dt = (currentTime - lastTime) /1000;

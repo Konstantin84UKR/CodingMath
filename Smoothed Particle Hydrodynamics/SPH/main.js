@@ -20,7 +20,7 @@ function main() {
     const simHeight = canvas.height / cScale;
 	const tablScale = 20;
 
-	const numBalls = 2000;
+	const numBalls = 1000;
 	const radiusBall = 0.01;
 
 	const radiusKernel = 0.04;
@@ -99,7 +99,7 @@ function main() {
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 		//drawGrid()
-        //ctx.fillStyle = "#ff8855";
+        ctx.fillStyle = "#ff8855";
 
         for (let i = 0; i < physicsScene.balls.length; i++) {
             const ball = physicsScene.balls[i];

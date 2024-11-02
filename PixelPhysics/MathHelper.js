@@ -44,4 +44,16 @@ export class MathHelper{
     static Index(idx, arraySize){
         return (idx + arraySize)%arraySize;
     }
+
+    static rotationAroundpoint(toRotationVertice, point, radians){
+        let rotated = new Vector2(0,0);
+
+        let dir = Vector2.Sub(toRotationVertice, point);
+
+        rotated.x = dir.x * Math.cos(radians) - dir.y * Math.sin(radians);
+        rotated.y = dir.x * Math.sin(radians) + dir.y * Math.cos(radians);
+
+        rotated.Add(point);
+        return rotated;
+    }
 }

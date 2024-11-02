@@ -59,6 +59,11 @@ export class Vector2{
         this.x *= scalar;
         this.y *= scalar;
     }
+   
+    Add(v){
+        this.x += v.x;
+        this.y += v.y;
+    }
 }
 
 function Add(vecA,vecB){
