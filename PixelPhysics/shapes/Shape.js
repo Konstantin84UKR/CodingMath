@@ -27,6 +27,10 @@ export class Shape{
         this._centroid = v;     
     }
 
+    setColor(c){
+        this.color = c;     
+    }
+
     getNearestVector(position, affectDistance){
         
         let bestNormal = null;
