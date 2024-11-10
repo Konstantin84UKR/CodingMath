@@ -42,11 +42,9 @@ export class CollisionDetection{
 
             return new CollisionManifold(depth*-1, normal, penetrationPoint);
         }else{
+           
             return null;
-        }
-
-       
-
+        }   
     } 
 
     static polygonVsPolygon(shapePolygonA, shapePolygonB){

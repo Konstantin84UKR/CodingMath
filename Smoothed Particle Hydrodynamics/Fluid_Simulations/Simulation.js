@@ -28,8 +28,8 @@ export class Simulation{
         this.BETA = 0.05;
 
         this.GAMMA = 0.1;
-        this.PLASTICITY = 0.0;
-        this.SPRING_STIFFNESS = 0.0;
+        this.PLASTICITY = 5.1;
+        this.SPRING_STIFFNESS = 5.7;
 
         this.MAX_STICKY_DISTANCE = this.INTERACTION_RADIUS;
         this.K_STICK = 0.05;
@@ -38,15 +38,15 @@ export class Simulation{
         this.instantiateParticles();
         this.fluidHashGrid.initialize(this.particles);
 
-        this.emitter =this.createParticleEmitter(
-            this.ctx,
-            new Vector2(canvas.width/2, 100),
-            new Vector2(0, 1),
-            50,
-            1,
-            5,
-            50
-        );
+        // this.emitter =this.createParticleEmitter(
+        //     this.ctx,
+        //     new Vector2(canvas.width/2, 100),
+        //     new Vector2(0, 1),
+        //     50,
+        //     1,
+        //     5,
+        //     50
+        // );
 
         this.rotate = true;
 
@@ -163,10 +163,10 @@ export class Simulation{
        
        
         if(this.rotate){
-            if(this.particleEmitters.length){
-                this.particleEmitters[0].spawn(dt, this.particles);
-                this.emitter.rotate(0.01 * Math.random());  
-            }           
+            // if(this.particleEmitters.length){
+            //     this.particleEmitters[0].spawn(dt, this.particles);
+            //     this.emitter.rotate(0.01 * Math.random());  
+            // }           
         }  
 
        this.applyGravity(dt); // line 1 - 3
@@ -181,11 +181,8 @@ export class Simulation{
        this.doubleDensityRelaxation(dt); // line 16
       
        this.handleStickyness(dt);
-<<<<<<< HEAD
-      this.handleOneWayCoupling();
-=======
        this.handleOneWayCoupling();
->>>>>>> a05af0cba562792b274d9989d0ce6227c0911062
+
        this.worldBoundary();
        
        this.couputeNextVelocity(dt);// line 18 - 20
@@ -398,7 +395,7 @@ export class Simulation{
 
     draw(){
 
-        //console.log(this.particles.length)
+        console.log(this.particles.length)
 
         for (let i = 0; i < this.particles.length; i++) {
             let p = this.particles[i];
