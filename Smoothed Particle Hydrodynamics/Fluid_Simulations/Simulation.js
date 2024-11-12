@@ -28,8 +28,8 @@ export class Simulation{
         this.BETA = 0.05;
 
         this.GAMMA = 0.1;
-        this.PLASTICITY = 5.1;
-        this.SPRING_STIFFNESS = 5.7;
+        this.PLASTICITY = 1.7;
+        this.SPRING_STIFFNESS = 0.7;
 
         this.MAX_STICKY_DISTANCE = this.INTERACTION_RADIUS;
         this.K_STICK = 0.05;
