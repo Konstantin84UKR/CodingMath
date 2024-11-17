@@ -18,7 +18,7 @@ let mousePos = [0,0];
 let mouseDownLeft = false;
 let mouseDownRigth = false;
 
-let simulation = new Simulation(ctx);
+let simulation = new Simulation(ctx,new Vector2(canvas.width,canvas.height));
 
 function getMousePos(canvas,e){
     let rect = canvas.getBoundingClientRect();

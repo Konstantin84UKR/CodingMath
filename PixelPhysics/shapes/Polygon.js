@@ -13,6 +13,20 @@ export class Polygon extends Shape{
         this._centroid = centroid;
     }
 
+    calculateInertia(mass){
+       let inertia = 0;
+       let massPerTriangleFace = mass/this.vertices.length;
+       for (let i = 0; i < this.vertices.length; i++) {
+            let centerToVetrice0 = Vector2.Sub(this.vertices[i], this._centroid);
+            let indexVertice1 = MathHelper.Index(i+1, this.vertices.length);
+            let centerToVetrice1 = Vector2.Sub(this.vertices[indexVertice1],this._centroid);
+            let inertiaTriangle = massPerTriangleFace * (centerToVetrice0.Length2() + centerToVetrice1.Length2() + centerToVetrice0.Dot(centerToVetrice1))/6;
+            inertia += inertiaTriangle;
+        }
+
+        return inertia;
+    }
+
     calculateNormals(){
 
         this.normals = [];

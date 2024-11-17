@@ -7,7 +7,11 @@ import { Polygon } from "./shapes/Polygon.js";
 
 export class CollisionDetection{
    
-    static checkCollisions(shapeA,shapeB){
+    static checkCollisions(rigiA,rigiB){
+        
+        let shapeA = rigiA.shape;
+        let shapeB = rigiB.shape;
+        
         let collisionManifold = null;
 
         if(shapeA instanceof Circle && shapeB instanceof Circle){
@@ -17,6 +21,13 @@ export class CollisionDetection{
         }else if(shapeA instanceof Circle && shapeB instanceof Polygon) {
             collisionManifold = this.circleVsPolygon(shapeA,shapeB);
         } 
+
+        if(collisionManifold != null){
+            collisionManifold.rigiA = rigiA;
+            collisionManifold.rigiB = rigiB;
+        }
+
+
         return collisionManifold;
     }
 

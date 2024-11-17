@@ -133,5 +133,5 @@ export class Shape{
         }
         DrawUtils.drawLine(this.ctx,this.vertices[this.vertices.length-1], this.vertices[0], this.color, 1);
     }
-
+   
 }

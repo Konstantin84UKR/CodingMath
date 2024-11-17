@@ -1,18 +1,30 @@
 import {Vector2} from "./Vector2.js"
 import {Material} from "./Material.js"
 
-export class RigidBody{
+export class Rigidbody{
     constructor(shape, mass){
         this.shape = shape;
         this.mass = mass;
         this.invMass = 0;
+        this.isKinematic = false;
         if(mass>0){
             this.invMass = 1/mass;
+        }else{
+            this.invMass = 0;
+            this.isKinematic = true;
         }
 
         this.forceAccumulator = new Vector2(0,0);
         this.velocity = new Vector2(0,0);
         this.material = new Material();
+
+        this.angularVelocity = 0;
+        this.inertia = this.shape.calculateInertia(this.mass);
+        if(this.inertia > 0.00001){
+            this.invInertia = 1 / this.inertia;
+        }else{
+            this.invInertia = 0;
+        }
     }
 
     addForce(force){
@@ -38,7 +50,8 @@ export class RigidBody{
         // this.midPointMethod(deltaTime);
         //this.rungeKutta4(deltaTime);
        
-        this.velocity.Scale(0.99);
+        this.velocity.Scale(0.999);
+        this.angularVelocity *= 0.999;
         this.forceAccumulator = new Vector2(0,0);
     }
 
@@ -47,6 +60,11 @@ export class RigidBody{
         this.velocity = Vector2.Add(this.velocity,Vector2.Scale(acceleration , deltaTime));
         let deltaPosition = Vector2.Scale(this.velocity,deltaTime);
         this.shape.move(deltaPosition);
+
+        let deltaRotation = this.angularVelocity * deltaTime;
+		//console.log(deltaRotation);
+		this.shape.rotate(deltaRotation);
+
     }
     
     forwardEuler(deltaTime){

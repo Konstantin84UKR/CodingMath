@@ -19,6 +19,10 @@ export class Circle extends Shape{
         this._radius = radius;
     }
 
+    calculateInertia(mass){
+        return 0.5 * mass * this._radius * this._radius;
+    }
+
     isPointInside(pos){
         let distanse = Vector2.Sub(pos, this.position).Length();
         return distanse < this.radius;

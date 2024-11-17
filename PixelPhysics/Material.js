@@ -1,6 +1,6 @@
 export class Material{
     constructor(){
-        this.bounce = 1.0;
+        this.bounce = .5;
         this.friction = 0.0;
     }
 }

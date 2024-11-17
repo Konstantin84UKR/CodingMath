@@ -15,4 +15,8 @@ export class Rectangle extends Polygon{
         this.heigth = heigth;
         this.color = color;
     }
+
+    calculateInertia(mass){
+       return mass * (this.width*this.width + this.heigth*this.heigth)/12;
+     }
 }
