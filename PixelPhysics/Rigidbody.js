@@ -45,10 +45,10 @@ export class Rigidbody{
     }
 
     integrate(deltaTime){
-        this.semiImplicitEuler(deltaTime);
+        //this.semiImplicitEuler(deltaTime);
         // this.forwardEuler(deltaTime);
         // this.midPointMethod(deltaTime);
-        //this.rungeKutta4(deltaTime);
+        this.rungeKutta4(deltaTime);
        
         this.velocity.Scale(0.999);
         this.angularVelocity *= 0.999;
@@ -72,6 +72,10 @@ export class Rigidbody{
         let deltaPosition =  Vector2.Scale(this.velocity, deltaTime);
         this.shape.move(deltaPosition);
         this.velocity = Vector2.Add(this.velocity, Vector2.Scale(acceleration, deltaTime));
+
+        let deltaRotation = this.angularVelocity * deltaTime;
+		//console.log(deltaRotation);
+		this.shape.rotate(deltaRotation);
     }
 
     midPointMethod(deltaTime){
@@ -81,6 +85,10 @@ export class Rigidbody{
         let deltaPosition = Vector2.Scale(this.velocity, deltaTime);
         this.shape.move(deltaPosition);
         this.velocity = Vector2.Add(this.velocity, Vector2.Scale(halfAccelaration,deltaTime));
+
+        let deltaRotation = this.angularVelocity * deltaTime;
+		//console.log(deltaRotation);
+		this.shape.rotate(deltaRotation);
     }
 
     rungeKutta4(deltaTime) {
@@ -108,6 +116,11 @@ export class Rigidbody{
 
         let deltaPosition = Vector2.Scale(this.velocity, deltaTime);
         this.shape.move(deltaPosition);
+
+
+        let deltaRotation = this.angularVelocity * deltaTime;
+		//console.log(deltaRotation);
+		this.shape.rotate(deltaRotation);
     }
 
     getShape(){

@@ -49,10 +49,41 @@ export class CollisionManifold{
         this.rigiB.velocity = Vector2.Add(this.rigiB.velocity,impulseVectorRigiB);
         this.rigiA.angularVelocity += -pToCentroidCrossNormalA * j * rigiAInvInertia;
         this.rigiB.angularVelocity += pToCentroidCrossNormalB * j * rigiBInvInertia;
+
+
+        //Friction
+        let velocityInNormalDirection = Vector2.Scale(this.normal, relativeVelocity.Dot(this.normal));
+		let tangent = Vector2.Sub(relativeVelocity, velocityInNormalDirection);
+		tangent = Vector2.Scale(tangent, -1);
+		let minFriction = Math.min(this.rigiA.material.friction, this.rigiB.material.friction);
+		if(tangent.x > 0.00001 || tangent.y > 0.00001){
+			tangent.Normalize();		
+			//DrawUtils.drawArrow(this.rigiA.shape.centroid,Vector2.Add(this.rigiA.shape.centroid, Vector2.Scale(tangent,40)),"blue");
+		}
+		
+		let pToCentroidCrossTangentA = penetrationToCentroidA.Cross(tangent);
+		let pToCentroidCrossTangentB = penetrationToCentroidB.Cross(tangent);
+
+		let crossSumTangent = pToCentroidCrossTangentA*pToCentroidCrossTangentA * rigiAInvInertia + pToCentroidCrossTangentB*pToCentroidCrossTangentB * rigiBInvInertia;
+		let frictionalImpulse = -(1+e)*relativeVelocity.Dot(tangent) * minFriction;
+		frictionalImpulse /= (invMassSum + crossSumTangent);
+		if(frictionalImpulse > j){
+			frictionalImpulse = j;
+		}
+
+		let frictionalImpulseVector = Vector2.Scale(tangent, frictionalImpulse);
+		
+		this.rigiA.velocity = Vector2.Sub(this.rigiA.velocity,Vector2.Scale(frictionalImpulseVector,this.rigiA.invMass));
+		this.rigiB.velocity = Vector2.Add(this.rigiB.velocity,Vector2.Scale(frictionalImpulseVector,this.rigiB.invMass));		
+
+		
+		this.rigiA.angularVelocity += -pToCentroidCrossTangentA * frictionalImpulse * rigiAInvInertia;		
+		this.rigiB.angularVelocity += pToCentroidCrossTangentB * frictionalImpulse * rigiBInvInertia;
+
 	}
 
     positionalCorrection(){
-		let correctionPercentage = 0.5;
+		let correctionPercentage = 0.1;
 		let amountToCorrect = this.depth / (this.rigiA.invMass + this.rigiB.invMass) * correctionPercentage;
 		let correctionVector = Vector2.Scale(this.normal, amountToCorrect);
 

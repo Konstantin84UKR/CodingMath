@@ -20,14 +20,26 @@ export class Simulation{
             dimamicBodyColor2: "#ffff88",
 
        } 
-
       
-       this.rigidBodies.push(new Rigidbody(new Rectangle(this.ctx, new Vector2(350,500), 200,200,this.colors.staticBodyColor ),0));
-       this.rigidBodies.push(new Rigidbody(new Rectangle(this.ctx, new Vector2(230,100), 200,100,this.colors.dimamicBodyColor),10));
-       this.rigidBodies.push( new Rigidbody(new Circle(this.ctx, new Vector2(550,300),50.0,this.colors.dimamicBodyColor),5));
+       let rect = new Rectangle(this.ctx, new Vector2(350,250), 600,50,this.colors.staticBodyColor )
+       rect.rotate(0.3);
+       let rest = new Rigidbody(rect,0);
+       
+       this.rigidBodies.push(rest);
+
+       let rect2 = new Rectangle(this.ctx, new Vector2(650,500), 600,50,this.colors.staticBodyColor )
+       rect2.rotate(-0.3);
+       let rest2 = new Rigidbody(rect2,0);
+       this.rigidBodies.push(rest2);
+
+
+       //this.rigidBodies.push(new Rigidbody(new Rectangle(this.ctx, new Vector2(230,100), 200,100,this.colors.dimamicBodyColor),10));
+       this.rigidBodies.push( new Rigidbody(new Circle(this.ctx, new Vector2(300,100),40.0,this.colors.dimamicBodyColor),4));
+       this.rigidBodies.push( new Rigidbody(new Circle(this.ctx, new Vector2(100,50),20.0,this.colors.dimamicBodyColor),2));
+       this.rigidBodies.push( new Rigidbody(new Circle(this.ctx, new Vector2(200,100),50.0,this.colors.dimamicBodyColor),5));
        this.rigidBodies.push(new Rigidbody(new Rectangle(this.ctx, new Vector2(480,100), 200,100,this.colors.dimamicBodyColor),10));
        
-      
+       this.rigidBodies[0].material.re
 
     }
 
